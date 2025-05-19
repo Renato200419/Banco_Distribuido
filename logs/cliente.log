@@ -1,0 +1,43 @@
+[2025-05-18 22:07:35] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:07:52] Usando servidor: 192.168.18.29:9000
+[2025-05-18 22:13:57] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:14:03] Usando servidor: 192.168.18.29:9000
+[2025-05-18 22:15:15] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:15:20] Usando servidor: localhost:9000
+[2025-05-18 22:43:08] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:43:11] Usando servidor: localhost:9000
+[2025-05-18 22:48:19] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:48:21] Usando servidor: localhost:9000
+[2025-05-18 22:52:02] Cliente bancario iniciado en modo interactivo
+[2025-05-18 22:52:04] Usando servidor: localhost:9000
+[2025-05-18 22:57:19] Iniciando prueba de carga: 25 transacciones
+[2025-05-18 22:57:19] Transferencia de 22.872375660976306 desde 105 a 208: RESPONSE|4|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:19] Consulta saldo cuenta 107: RESPONSE|5|ERROR|Cuenta no encontrada: 107
+[2025-05-18 22:57:19] Consulta saldo cuenta 108: RESPONSE|6|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:19] Consulta saldo cuenta 102: RESPONSE|7|OK|3300.50
+[2025-05-18 22:57:20] Consulta saldo cuenta 100: RESPONSE|8|ERROR|Cuenta no encontrada: 100
+[2025-05-18 22:57:20] Transferencia de 36.84055618021531 desde 107 a 203: RESPONSE|9|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:20] Transferencia de 93.82517653523533 desde 104 a 207: RESPONSE|10|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Transferencia de 13.93111471881079 desde 109 a 202: RESPONSE|11|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Transferencia de 61.20968734274265 desde 106 a 201: RESPONSE|12|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Consulta saldo cuenta 105: RESPONSE|13|OK|750.25
+[2025-05-18 22:57:20] Consulta saldo cuenta 108: RESPONSE|14|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:20] Transferencia de 12.273229552210829 desde 106 a 203: RESPONSE|15|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Transferencia de 3.982058586788939 desde 102 a 207: RESPONSE|16|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Consulta saldo cuenta 105: RESPONSE|17|OK|750.25
+[2025-05-18 22:57:20] Transferencia de 64.60963253296246 desde 100 a 200: RESPONSE|18|ERROR|Cuenta origen no encontrada: 100
+[2025-05-18 22:57:20] Consulta saldo cuenta 104: RESPONSE|19|OK|5000.00
+[2025-05-18 22:57:20] Consulta saldo cuenta 109: RESPONSE|20|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:20] Consulta saldo cuenta 105: RESPONSE|21|OK|750.25
+[2025-05-18 22:57:20] Transferencia de 46.94070437151437 desde 109 a 209: RESPONSE|22|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Consulta saldo cuenta 109: RESPONSE|23|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:21] Transferencia de 19.70671491053079 desde 106 a 204: RESPONSE|24|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:21] Consulta saldo cuenta 109: RESPONSE|25|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:21] Transferencia de 89.03020277652969 desde 107 a 208: RESPONSE|26|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:21] Transferencia de 66.39599519802933 desde 103 a 208: RESPONSE|27|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:21] Consulta saldo cuenta 106: RESPONSE|28|ERROR|Cuenta no encontrada: 106
+[2025-05-18 22:57:21] Prueba de carga finalizada
+[2025-05-18 22:57:21] Transacciones completadas: 25/25
+[2025-05-18 22:57:21] Errores: 0
+[2025-05-18 22:57:21] Tiempo total: 2.098 segundos
+[2025-05-18 22:57:21] Transacciones por segundo: 11.916110581506198

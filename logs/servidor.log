@@ -1,0 +1,265 @@
+[2025-05-18 22:06:15] Datos de prueba creados exitosamente
+[2025-05-18 22:06:15] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:06:15] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:06:15] Nodos trabajadores configurados: 3
+[2025-05-18 22:06:15] Saldo total inicial: 12,551.50
+[2025-05-18 22:06:15] Estado del nodo 127.0.0.1:9101 cambiado a NO DISPONIBLE
+[2025-05-18 22:06:15] Estado del nodo 127.0.0.1:9102 cambiado a NO DISPONIBLE
+[2025-05-18 22:06:15] Estado del nodo 127.0.0.1:9103 cambiado a NO DISPONIBLE
+[2025-05-18 22:08:54] Solicitud recibida: REQUEST|CONSULTAR_SALDO|101
+[2025-05-18 22:08:54] Tarea creada: ID=1, Op=CONSULTAR_SALDO, Params=[101]
+[2025-05-18 22:08:54] Partición requerida para tarea 1: parte3.2
+[2025-05-18 22:08:54] No se encontró ningún nodo disponible para tarea 1
+[2025-05-18 22:08:54] No hay nodos disponibles para procesar tarea 1
+[2025-05-18 22:08:54] Resultado de tarea 1: ERROR|No hay nodos trabajadores disponibles
+[2025-05-18 22:09:09] Solicitud recibida: REQUEST|CONSULTAR_SALDO|102
+[2025-05-18 22:09:09] Tarea creada: ID=2, Op=CONSULTAR_SALDO, Params=[102]
+[2025-05-18 22:09:09] Partición requerida para tarea 2: parte1.1
+[2025-05-18 22:09:09] No se encontró ningún nodo disponible para tarea 2
+[2025-05-18 22:09:09] No hay nodos disponibles para procesar tarea 2
+[2025-05-18 22:09:09] Resultado de tarea 2: ERROR|No hay nodos trabajadores disponibles
+[2025-05-18 22:11:29] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:11:29] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:11:29] Nodos trabajadores configurados: 3
+[2025-05-18 22:11:29] Saldo total inicial: 12,551.50
+[2025-05-18 22:11:29] Error crítico en el servidor: Address already in use (Bind failed)
+[2025-05-18 22:11:43] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:11:43] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:11:43] Nodos trabajadores configurados: 3
+[2025-05-18 22:11:43] Saldo total inicial: 12,551.50
+[2025-05-18 22:11:43] Estado del nodo 127.0.0.1:9101 cambiado a NO DISPONIBLE
+[2025-05-18 22:11:43] Estado del nodo 127.0.0.1:9102 cambiado a NO DISPONIBLE
+[2025-05-18 22:11:43] Estado del nodo 127.0.0.1:9103 cambiado a NO DISPONIBLE
+[2025-05-18 22:14:08] Solicitud recibida: REQUEST|CONSULTAR_SALDO|101
+[2025-05-18 22:14:08] Tarea creada: ID=1, Op=CONSULTAR_SALDO, Params=[101]
+[2025-05-18 22:14:08] Partición requerida para tarea 1: parte3.2
+[2025-05-18 22:14:08] No se encontró ningún nodo disponible para tarea 1
+[2025-05-18 22:14:08] No hay nodos disponibles para procesar tarea 1
+[2025-05-18 22:14:08] Resultado de tarea 1: ERROR|No hay nodos trabajadores disponibles
+[2025-05-18 22:15:28] Solicitud recibida: GET / HTTP/1.1
+[2025-05-18 22:15:29] Solicitud recibida: GET / HTTP/1.1
+[2025-05-18 22:15:36] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|101|103|1000.00
+[2025-05-18 22:15:36] Tarea creada: ID=2, Op=TRANSFERIR_FONDOS, Params=[101, 103, 1000.00]
+[2025-05-18 22:15:36] Partición requerida para tarea 2: parte3.2
+[2025-05-18 22:15:36] No se encontró ningún nodo disponible para tarea 2
+[2025-05-18 22:15:36] No hay nodos disponibles para procesar tarea 2
+[2025-05-18 22:15:36] Resultado de tarea 2: ERROR|No hay nodos trabajadores disponibles
+[2025-05-18 22:42:39] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:42:39] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:42:39] Nodos trabajadores configurados: 3
+[2025-05-18 22:42:39] Saldo total inicial: 12,551.50
+[2025-05-18 22:42:39] Estado del nodo 127.0.0.1:9102 cambiado a NO DISPONIBLE
+[2025-05-18 22:42:39] Estado del nodo 127.0.0.1:9103 cambiado a NO DISPONIBLE
+[2025-05-18 22:43:35] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:43:35] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:43:35] Nodos trabajadores configurados: 3
+[2025-05-18 22:43:35] Saldo total inicial: 12,551.50
+[2025-05-18 22:43:35] Error crítico en el servidor: Address already in use (Bind failed)
+[2025-05-18 22:47:59] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:47:59] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:47:59] Nodos trabajadores configurados: 3
+[2025-05-18 22:47:59] Saldo total inicial: 12,551.50
+[2025-05-18 22:47:59] Estado del nodo 127.0.0.1:9102 cambiado a NO DISPONIBLE
+[2025-05-18 22:47:59] Estado del nodo 127.0.0.1:9103 cambiado a NO DISPONIBLE
+[2025-05-18 22:51:45] Nodos trabajadores configurados: [Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true], Nodo[ip=127.0.0.1, puerto=9102, lenguaje=javascript, disponible=true], Nodo[ip=127.0.0.1, puerto=9103, lenguaje=typescript, disponible=true]]
+[2025-05-18 22:51:45] Servidor Central iniciado en puerto 9000
+[2025-05-18 22:51:45] Nodos trabajadores configurados: 3
+[2025-05-18 22:51:45] Saldo total inicial: 12,551.50
+[2025-05-18 22:51:45] Estado del nodo 127.0.0.1:9102 cambiado a NO DISPONIBLE
+[2025-05-18 22:51:45] Estado del nodo 127.0.0.1:9103 cambiado a NO DISPONIBLE
+[2025-05-18 22:55:03] Solicitud recibida: REQUEST|CONSULTAR_SALDO|101
+[2025-05-18 22:55:03] Tarea creada: ID=1, Op=CONSULTAR_SALDO, Params=[101]
+[2025-05-18 22:55:03] Partición requerida para tarea 1: parte3.2
+[2025-05-18 22:55:03] Nodo alternativo seleccionado para tarea 1: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:55:03] Enviando a nodo 127.0.0.1:9101: TASK|1|CONSULTAR_SALDO|101
+[2025-05-18 22:55:03] Respuesta recibida de nodo: RESPONSE|1|OK|1500.00
+[2025-05-18 22:55:03] Resultado de tarea 1: RESPONSE|1|OK|1500.00
+[2025-05-18 22:55:25] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|101|102|100.00
+[2025-05-18 22:55:25] Tarea creada: ID=2, Op=TRANSFERIR_FONDOS, Params=[101, 102, 100.00]
+[2025-05-18 22:55:25] Partición requerida para tarea 2: parte3.2
+[2025-05-18 22:55:25] Nodo alternativo seleccionado para tarea 2: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:55:25] Enviando a nodo 127.0.0.1:9101: TASK|2|TRANSFERIR_FONDOS|101|102|100.00
+[2025-05-18 22:55:25] Respuesta recibida de nodo: RESPONSE|2|OK|Transferencia completada
+[2025-05-18 22:55:25] Resultado de tarea 2: RESPONSE|2|OK|Transferencia completada
+[2025-05-18 22:55:36] Solicitud recibida: REQUEST|CONSULTAR_SALDO|101
+[2025-05-18 22:55:36] Tarea creada: ID=3, Op=CONSULTAR_SALDO, Params=[101]
+[2025-05-18 22:55:36] Partición requerida para tarea 3: parte3.2
+[2025-05-18 22:55:36] Nodo alternativo seleccionado para tarea 3: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:55:36] Enviando a nodo 127.0.0.1:9101: TASK|3|CONSULTAR_SALDO|101
+[2025-05-18 22:55:36] Respuesta recibida de nodo: RESPONSE|3|OK|1400.00
+[2025-05-18 22:55:36] Resultado de tarea 3: RESPONSE|3|OK|1400.00
+[2025-05-18 22:57:19] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|105|208|22.87
+[2025-05-18 22:57:19] Tarea creada: ID=4, Op=TRANSFERIR_FONDOS, Params=[105, 208, 22.87]
+[2025-05-18 22:57:19] Partición requerida para tarea 4: parte1.2
+[2025-05-18 22:57:19] Nodo alternativo seleccionado para tarea 4: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:19] Enviando a nodo 127.0.0.1:9101: TASK|4|TRANSFERIR_FONDOS|105|208|22.87
+[2025-05-18 22:57:19] Respuesta recibida de nodo: RESPONSE|4|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:19] Resultado de tarea 4: RESPONSE|4|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:19] Solicitud recibida: REQUEST|CONSULTAR_SALDO|107
+[2025-05-18 22:57:19] Tarea creada: ID=5, Op=CONSULTAR_SALDO, Params=[107]
+[2025-05-18 22:57:19] Partición requerida para tarea 5: parte3.2
+[2025-05-18 22:57:19] Nodo alternativo seleccionado para tarea 5: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:19] Enviando a nodo 127.0.0.1:9101: TASK|5|CONSULTAR_SALDO|107
+[2025-05-18 22:57:19] Respuesta recibida de nodo: RESPONSE|5|ERROR|Cuenta no encontrada: 107
+[2025-05-18 22:57:19] Resultado de tarea 5: RESPONSE|5|ERROR|Cuenta no encontrada: 107
+[2025-05-18 22:57:19] Solicitud recibida: REQUEST|CONSULTAR_SALDO|108
+[2025-05-18 22:57:19] Tarea creada: ID=6, Op=CONSULTAR_SALDO, Params=[108]
+[2025-05-18 22:57:19] Partición requerida para tarea 6: parte1.1
+[2025-05-18 22:57:19] Nodo seleccionado para tarea 6: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:19] Enviando a nodo 127.0.0.1:9101: TASK|6|CONSULTAR_SALDO|108
+[2025-05-18 22:57:19] Respuesta recibida de nodo: RESPONSE|6|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:19] Resultado de tarea 6: RESPONSE|6|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:19] Solicitud recibida: REQUEST|CONSULTAR_SALDO|102
+[2025-05-18 22:57:19] Tarea creada: ID=7, Op=CONSULTAR_SALDO, Params=[102]
+[2025-05-18 22:57:19] Partición requerida para tarea 7: parte1.1
+[2025-05-18 22:57:19] Nodo seleccionado para tarea 7: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:19] Enviando a nodo 127.0.0.1:9101: TASK|7|CONSULTAR_SALDO|102
+[2025-05-18 22:57:19] Respuesta recibida de nodo: RESPONSE|7|OK|3300.50
+[2025-05-18 22:57:19] Resultado de tarea 7: RESPONSE|7|OK|3300.50
+[2025-05-18 22:57:19] Solicitud recibida: REQUEST|CONSULTAR_SALDO|100
+[2025-05-18 22:57:20] Tarea creada: ID=8, Op=CONSULTAR_SALDO, Params=[100]
+[2025-05-18 22:57:20] Partición requerida para tarea 8: parte2.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 8: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|8|CONSULTAR_SALDO|100
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|8|ERROR|Cuenta no encontrada: 100
+[2025-05-18 22:57:20] Resultado de tarea 8: RESPONSE|8|ERROR|Cuenta no encontrada: 100
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|107|203|36.84
+[2025-05-18 22:57:20] Tarea creada: ID=9, Op=TRANSFERIR_FONDOS, Params=[107, 203, 36.84]
+[2025-05-18 22:57:20] Partición requerida para tarea 9: parte3.2
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 9: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|9|TRANSFERIR_FONDOS|107|203|36.84
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|9|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:20] Resultado de tarea 9: RESPONSE|9|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|104|207|93.83
+[2025-05-18 22:57:20] Tarea creada: ID=10, Op=TRANSFERIR_FONDOS, Params=[104, 207, 93.83]
+[2025-05-18 22:57:20] Partición requerida para tarea 10: parte3.1
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 10: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|10|TRANSFERIR_FONDOS|104|207|93.83
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|10|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Resultado de tarea 10: RESPONSE|10|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|109|202|13.93
+[2025-05-18 22:57:20] Tarea creada: ID=11, Op=TRANSFERIR_FONDOS, Params=[109, 202, 13.93]
+[2025-05-18 22:57:20] Partición requerida para tarea 11: parte2.2
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 11: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|11|TRANSFERIR_FONDOS|109|202|13.93
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|11|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Resultado de tarea 11: RESPONSE|11|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|106|201|61.21
+[2025-05-18 22:57:20] Tarea creada: ID=12, Op=TRANSFERIR_FONDOS, Params=[106, 201, 61.21]
+[2025-05-18 22:57:20] Partición requerida para tarea 12: parte2.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 12: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|12|TRANSFERIR_FONDOS|106|201|61.21
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|12|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Resultado de tarea 12: RESPONSE|12|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Tarea creada: ID=13, Op=CONSULTAR_SALDO, Params=[105]
+[2025-05-18 22:57:20] Partición requerida para tarea 13: parte1.2
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 13: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|13|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|13|OK|750.25
+[2025-05-18 22:57:20] Resultado de tarea 13: RESPONSE|13|OK|750.25
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|108
+[2025-05-18 22:57:20] Tarea creada: ID=14, Op=CONSULTAR_SALDO, Params=[108]
+[2025-05-18 22:57:20] Partición requerida para tarea 14: parte1.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 14: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|14|CONSULTAR_SALDO|108
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|14|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:20] Resultado de tarea 14: RESPONSE|14|ERROR|Cuenta no encontrada: 108
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|106|203|12.27
+[2025-05-18 22:57:20] Tarea creada: ID=15, Op=TRANSFERIR_FONDOS, Params=[106, 203, 12.27]
+[2025-05-18 22:57:20] Partición requerida para tarea 15: parte2.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 15: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|15|TRANSFERIR_FONDOS|106|203|12.27
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|15|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Resultado de tarea 15: RESPONSE|15|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|102|207|3.98
+[2025-05-18 22:57:20] Tarea creada: ID=16, Op=TRANSFERIR_FONDOS, Params=[102, 207, 3.98]
+[2025-05-18 22:57:20] Partición requerida para tarea 16: parte1.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 16: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|16|TRANSFERIR_FONDOS|102|207|3.98
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|16|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Resultado de tarea 16: RESPONSE|16|ERROR|Cuenta destino no encontrada: 207
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Tarea creada: ID=17, Op=CONSULTAR_SALDO, Params=[105]
+[2025-05-18 22:57:20] Partición requerida para tarea 17: parte1.2
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 17: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|17|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|17|OK|750.25
+[2025-05-18 22:57:20] Resultado de tarea 17: RESPONSE|17|OK|750.25
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|100|200|64.61
+[2025-05-18 22:57:20] Tarea creada: ID=18, Op=TRANSFERIR_FONDOS, Params=[100, 200, 64.61]
+[2025-05-18 22:57:20] Partición requerida para tarea 18: parte2.1
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 18: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|18|TRANSFERIR_FONDOS|100|200|64.61
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|18|ERROR|Cuenta origen no encontrada: 100
+[2025-05-18 22:57:20] Resultado de tarea 18: RESPONSE|18|ERROR|Cuenta origen no encontrada: 100
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|104
+[2025-05-18 22:57:20] Tarea creada: ID=19, Op=CONSULTAR_SALDO, Params=[104]
+[2025-05-18 22:57:20] Partición requerida para tarea 19: parte3.1
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 19: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|19|CONSULTAR_SALDO|104
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|19|OK|5000.00
+[2025-05-18 22:57:20] Resultado de tarea 19: RESPONSE|19|OK|5000.00
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|109
+[2025-05-18 22:57:20] Tarea creada: ID=20, Op=CONSULTAR_SALDO, Params=[109]
+[2025-05-18 22:57:20] Partición requerida para tarea 20: parte2.2
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 20: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|20|CONSULTAR_SALDO|109
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|20|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:20] Resultado de tarea 20: RESPONSE|20|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Tarea creada: ID=21, Op=CONSULTAR_SALDO, Params=[105]
+[2025-05-18 22:57:20] Partición requerida para tarea 21: parte1.2
+[2025-05-18 22:57:20] Nodo alternativo seleccionado para tarea 21: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|21|CONSULTAR_SALDO|105
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|21|OK|750.25
+[2025-05-18 22:57:20] Resultado de tarea 21: RESPONSE|21|OK|750.25
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|109|209|46.94
+[2025-05-18 22:57:20] Tarea creada: ID=22, Op=TRANSFERIR_FONDOS, Params=[109, 209, 46.94]
+[2025-05-18 22:57:20] Partición requerida para tarea 22: parte2.2
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 22: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|22|TRANSFERIR_FONDOS|109|209|46.94
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|22|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Resultado de tarea 22: RESPONSE|22|ERROR|Cuenta origen no encontrada: 109
+[2025-05-18 22:57:20] Solicitud recibida: REQUEST|CONSULTAR_SALDO|109
+[2025-05-18 22:57:20] Tarea creada: ID=23, Op=CONSULTAR_SALDO, Params=[109]
+[2025-05-18 22:57:20] Partición requerida para tarea 23: parte2.2
+[2025-05-18 22:57:20] Nodo seleccionado para tarea 23: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:20] Enviando a nodo 127.0.0.1:9101: TASK|23|CONSULTAR_SALDO|109
+[2025-05-18 22:57:20] Respuesta recibida de nodo: RESPONSE|23|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:20] Resultado de tarea 23: RESPONSE|23|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:21] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|106|204|19.71
+[2025-05-18 22:57:21] Tarea creada: ID=24, Op=TRANSFERIR_FONDOS, Params=[106, 204, 19.71]
+[2025-05-18 22:57:21] Partición requerida para tarea 24: parte2.1
+[2025-05-18 22:57:21] Nodo seleccionado para tarea 24: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:21] Enviando a nodo 127.0.0.1:9101: TASK|24|TRANSFERIR_FONDOS|106|204|19.71
+[2025-05-18 22:57:21] Respuesta recibida de nodo: RESPONSE|24|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:21] Resultado de tarea 24: RESPONSE|24|ERROR|Cuenta origen no encontrada: 106
+[2025-05-18 22:57:21] Solicitud recibida: REQUEST|CONSULTAR_SALDO|109
+[2025-05-18 22:57:21] Tarea creada: ID=25, Op=CONSULTAR_SALDO, Params=[109]
+[2025-05-18 22:57:21] Partición requerida para tarea 25: parte2.2
+[2025-05-18 22:57:21] Nodo seleccionado para tarea 25: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:21] Enviando a nodo 127.0.0.1:9101: TASK|25|CONSULTAR_SALDO|109
+[2025-05-18 22:57:21] Respuesta recibida de nodo: RESPONSE|25|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:21] Resultado de tarea 25: RESPONSE|25|ERROR|Cuenta no encontrada: 109
+[2025-05-18 22:57:21] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|107|208|89.03
+[2025-05-18 22:57:21] Tarea creada: ID=26, Op=TRANSFERIR_FONDOS, Params=[107, 208, 89.03]
+[2025-05-18 22:57:21] Partición requerida para tarea 26: parte3.2
+[2025-05-18 22:57:21] Nodo alternativo seleccionado para tarea 26: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:21] Enviando a nodo 127.0.0.1:9101: TASK|26|TRANSFERIR_FONDOS|107|208|89.03
+[2025-05-18 22:57:21] Respuesta recibida de nodo: RESPONSE|26|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:21] Resultado de tarea 26: RESPONSE|26|ERROR|Cuenta origen no encontrada: 107
+[2025-05-18 22:57:21] Solicitud recibida: REQUEST|TRANSFERIR_FONDOS|103|208|66.40
+[2025-05-18 22:57:21] Tarea creada: ID=27, Op=TRANSFERIR_FONDOS, Params=[103, 208, 66.40]
+[2025-05-18 22:57:21] Partición requerida para tarea 27: parte2.2
+[2025-05-18 22:57:21] Nodo seleccionado para tarea 27: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:21] Enviando a nodo 127.0.0.1:9101: TASK|27|TRANSFERIR_FONDOS|103|208|66.40
+[2025-05-18 22:57:21] Respuesta recibida de nodo: RESPONSE|27|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:21] Resultado de tarea 27: RESPONSE|27|ERROR|Cuenta destino no encontrada: 208
+[2025-05-18 22:57:21] Solicitud recibida: REQUEST|CONSULTAR_SALDO|106
+[2025-05-18 22:57:21] Tarea creada: ID=28, Op=CONSULTAR_SALDO, Params=[106]
+[2025-05-18 22:57:21] Partición requerida para tarea 28: parte2.1
+[2025-05-18 22:57:21] Nodo seleccionado para tarea 28: Nodo[ip=127.0.0.1, puerto=9101, lenguaje=python, disponible=true]
+[2025-05-18 22:57:21] Enviando a nodo 127.0.0.1:9101: TASK|28|CONSULTAR_SALDO|106
+[2025-05-18 22:57:21] Respuesta recibida de nodo: RESPONSE|28|ERROR|Cuenta no encontrada: 106
+[2025-05-18 22:57:21] Resultado de tarea 28: RESPONSE|28|ERROR|Cuenta no encontrada: 106
