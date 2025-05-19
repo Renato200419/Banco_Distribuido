@@ -1,0 +1,36 @@
+# Archivos compilados
+*.class
+
+# Archivos de log
+logs/
+*.log
+
+# Directorios específicos de IDE
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# Directorios de compilación
+target/
+build/
+out/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de respaldo
+*~
+*.bak
+
+# Archivos Java que no deberían incluirse
+hs_err_pid*
