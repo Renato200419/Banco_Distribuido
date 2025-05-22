@@ -1,5 +1,0 @@
-101|1|1400.0|Ahorros
-102|2|3300.5|Corriente
-103|3|2100.75|Ahorros
-104|4|5000.0|Corriente
-105|5|750.25|Ahorros

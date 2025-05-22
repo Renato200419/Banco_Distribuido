@@ -1,5 +1,0 @@
-1|Juan Pérez|juan@email.com|987654321
-2|María López|maria@email.com|998877665
-3|Carlos Rodríguez|carlos@email.com|912345678
-4|Ana Martínez|ana@email.com|923456789
-5|Pedro Sánchez|pedro@email.com|934567890
