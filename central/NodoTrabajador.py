@@ -6,7 +6,7 @@ from datetime import datetime
 import argparse 
 
 # --- Configuración del Nodo 
-DEFAULT_ID_NODO = 1
+DEFAULT_ID_NODO = 3
 DEFAULT_IP_SERVIDOR_CENTRAL = '192.168.18.29'
 DEFAULT_PUERTO_SERVIDOR_CENTRAL = 9000 # Puerto donde el ServidorCentral Java escucha
 DATA_DIR_RELATIVE = os.path.join("..", "data") # Ruta relativa al script
