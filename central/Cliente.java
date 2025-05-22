@@ -359,48 +359,108 @@ public class Cliente {
     /**
      * Realiza una prueba de arqueo consultando múltiples cuentas
      */
+
     private static void realizarPruebaArqueo() {
         log("Iniciando prueba de arqueo...");
+        System.out.println("Iniciando prueba de arqueo completo...");
+        System.out.println("Esto puede tomar varios minutos...");
         
         try {
             double saldoTotal = 0;
             int cuentasConsultadas = 0;
             int errores = 0;
+            long tiempoInicio = System.currentTimeMillis();
             
-            // Consultar una muestra de cuentas para verificar arqueo
-            for (int i = 0; i < 100; i++) {
-                int idCuenta = MIN_ID_CUENTA + random.nextInt(1000); // Muestra aleatoria
-                
+            // ✅ CONSULTAR TODAS LAS CUENTAS EN EL RANGO CORRECTO
+            // Según el ServerCentral: 5000 cuentas desde ID 101
+            for (int idCuenta = MIN_ID_CUENTA; idCuenta <= MAX_ID_CUENTA; idCuenta++) {
                 try {
                     String resultado = consultarSaldo(idCuenta);
                     
-                    if (resultado.contains("|OK|")) {
+                    if (resultado != null && resultado.contains("|OK|")) {
                         String[] partes = resultado.split("\\|");
                         if (partes.length >= 4) {
-                            double saldo = Double.parseDouble(partes[3]);
-                            saldoTotal += saldo;
-                            cuentasConsultadas++;
+                            try {
+                                double saldo = Double.parseDouble(partes[3]);
+                                saldoTotal += saldo;
+                                cuentasConsultadas++;
+                            } catch (NumberFormatException e) {
+                                errores++;
+                            }
                         }
                     } else {
                         errores++;
+                        // Solo mostrar algunos errores para no saturar la consola
+                        if (errores <= 10) {
+                            System.out.println("Error en cuenta " + idCuenta + ": " + resultado);
+                        }
                     }
                     
-                    Thread.sleep(50); // Pequeño delay
+                    // Mostrar progreso cada 500 cuentas
+                    if (idCuenta % 500 == 0) {
+                        double progreso = ((double)(idCuenta - MIN_ID_CUENTA + 1)) / (MAX_ID_CUENTA - MIN_ID_CUENTA + 1) * 100;
+                        System.out.println(String.format("Progreso: %.1f%% - Cuenta %d - Exitosas: %d - Errores: %d", 
+                                        progreso, idCuenta, cuentasConsultadas, errores));
+                    }
+                    
+                    // Pequeño delay para no saturar el servidor
+                    Thread.sleep(5); // 5ms entre consultas
                     
                 } catch (Exception e) {
                     errores++;
+                    if (errores <= 10) {
+                        System.out.println("Excepción en cuenta " + idCuenta + ": " + e.getMessage());
+                    }
                 }
             }
             
-            System.out.println("RESULTADO PRUEBA DE ARQUEO");
-            System.out.println("Cuentas consultadas: " + cuentasConsultadas);
-            System.out.println("Saldo total muestra: $" + String.format("%.2f", saldoTotal));
-            System.out.println("Errores: " + errores);
-            System.out.println("Promedio por cuenta: $" + String.format("%.2f", 
-                cuentasConsultadas > 0 ? saldoTotal / cuentasConsultadas : 0));
+            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+            double segundos = tiempoTotal / 1000.0;
+            
+            // RESULTADOS DETALLADOS
+            System.out.println("\n" + "=".repeat(60));
+            System.out.println("RESULTADO PRUEBA DE ARQUEO COMPLETO");
+            System.out.println("=".repeat(60));
+            System.out.println("Rango consultado: " + MIN_ID_CUENTA + " - " + MAX_ID_CUENTA);
+            System.out.println("Total cuentas esperadas: " + (MAX_ID_CUENTA - MIN_ID_CUENTA + 1));
+            System.out.println("Cuentas encontradas: " + cuentasConsultadas);
+            System.out.println("Cuentas con error: " + errores);
+            System.out.println("Saldo total calculado: $" + String.format("%,.2f", saldoTotal));
+            System.out.println("Tiempo total: " + String.format("%.2f", segundos) + " segundos");
+            System.out.println("Velocidad: " + String.format("%.2f", cuentasConsultadas / segundos) + " consultas/seg");
+            
+            if (cuentasConsultadas > 0) {
+                double promedio = saldoTotal / cuentasConsultadas;
+                System.out.println("Promedio por cuenta: $" + String.format("%.2f", promedio));
+            }
+            
+            double tasaExito = (cuentasConsultadas * 100.0) / (MAX_ID_CUENTA - MIN_ID_CUENTA + 1);
+            System.out.println("Tasa de éxito: " + String.format("%.2f", tasaExito) + "%");
+            
+            // Comparar con el saldo reportado por el ServerCentral (13,630,080.92)
+            double saldoEsperado = 13630080.92; // Del log del ServerCentral
+            double diferencia = Math.abs(saldoTotal - saldoEsperado);
+            System.out.println("\nCOMPARACIÓN CON SERVIDOR CENTRAL:");
+            System.out.println("Saldo reportado por servidor: $" + String.format("%,.2f", saldoEsperado));
+            System.out.println("Saldo calculado por arqueo: $" + String.format("%,.2f", saldoTotal));
+            System.out.println("Diferencia: $" + String.format("%,.2f", diferencia));
+            
+            if (diferencia < 0.01) {
+                System.out.println("✅ ARQUEO EXITOSO - Los saldos coinciden");
+            } else {
+                System.out.println("⚠️  DISCREPANCIA DETECTADA - Revisar integridad de datos");
+            }
+            
+            System.out.println("=".repeat(60));
+            
+            log("Arqueo completado - Cuentas: " + cuentasConsultadas + 
+                ", Saldo: $" + String.format("%,.2f", saldoTotal) + 
+                ", Errores: " + errores + 
+                ", Tiempo: " + String.format("%.2f", segundos) + "s");
                 
         } catch (Exception e) {
             System.err.println("Error en prueba de arqueo: " + e.getMessage());
+            log("Error en arqueo: " + e.getMessage());
         }
     }
     
