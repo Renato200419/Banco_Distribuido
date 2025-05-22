@@ -7,7 +7,7 @@ import argparse
 
 # --- Configuración del Nodo 
 DEFAULT_ID_NODO = 3
-DEFAULT_IP_SERVIDOR_CENTRAL = '192.168.18.29'
+DEFAULT_IP_SERVIDOR_CENTRAL = '192.168.18.31'
 DEFAULT_PUERTO_SERVIDOR_CENTRAL = 9000 # Puerto donde el ServidorCentral Java escucha
 DATA_DIR_RELATIVE = os.path.join("..", "data") # Ruta relativa al script
 
@@ -55,14 +55,6 @@ def configurar_particiones_nodo_default(id_nodo_actual):
         particiones_nodo.update([f"default_part_for_nodo{id_nodo_actual}.1", f"default_part_for_nodo{id_nodo_actual}.2"])
     log_message(f"Particiones por defecto configuradas: {particiones_nodo}")
 
-def crear_directorios_si_no_existen():
-    global DATA_DIR
-    try:
-        os.makedirs(os.path.join(DATA_DIR, "clientes"), exist_ok=True)
-        os.makedirs(os.path.join(DATA_DIR, "cuentas"), exist_ok=True)
-        os.makedirs(os.path.join(DATA_DIR, "transacciones"), exist_ok=True)
-    except Exception as e:
-        log_message(f"Error creando directorios de datos: {e}")
 
 def cargar_datos_iniciales():
     global clientes_data, cuentas_data, transacciones_data, DATA_DIR
@@ -72,66 +64,23 @@ def cargar_datos_iniciales():
     DATA_DIR = os.path.abspath(os.path.join(script_dir, DATA_DIR_RELATIVE))
     log_message(f"Directorio de datos resolvedo a: {DATA_DIR}")
 
-    crear_directorios_si_no_existen()
-
-    # Cargar Clientes
-    clientes_file = os.path.join(DATA_DIR, "clientes", "clientes.txt")
-    if not os.path.exists(clientes_file):
-        log_message("Archivo de clientes no encontrado. Creando archivo de prueba...")
-        with open(clientes_file, "w", encoding='utf-8') as f:
-            f.write("1|Juan Pérez|juan@email.com|987654321\n")
-            # ... (más datos de ejemplo si quieres)
+    # ✅ CARGAR CUENTAS DE PARTICIONES ASIGNADAS
+    cargar_cuentas_particionadas()
     
-    clientes_data.clear()
-    with open(clientes_file, "r", encoding='utf-8') as f:
-        for linea in f:
-            linea = linea.strip()
-            if not linea: continue
-            partes = linea.split('|')
-            if len(partes) >= 4:
-                id_cliente = int(partes[0])
-                clientes_data[id_cliente] = {"nombre": partes[1], "email": partes[2], "telefono": partes[3]}
-    log_message(f"Clientes cargados: {len(clientes_data)}")
-
-    # Cargar Cuentas
-    cuentas_file = os.path.join(DATA_DIR, "cuentas", "cuentas.txt")
-    if not os.path.exists(cuentas_file):
-        log_message("Archivo de cuentas no encontrado. Creando archivo de prueba...")
-        with open(cuentas_file, "w", encoding='utf-8') as f:
-            f.write("101|1|1500.00|Ahorros\n")
-            f.write("102|2|3200.50|Corriente\n")
-            f.write("201|1|500.00|Ahorros\n") 
-            f.write("202|2|800.00|Corriente\n")
+    # ✅ CARGAR CLIENTES (del archivo común)
+    cargar_clientes_comun()
     
-    cuentas_data.clear()
-    with open(cuentas_file, "r", encoding='utf-8') as f:
-        for linea in f:
-            linea = linea.strip()
-            if not linea: continue
-            partes = linea.split('|')
-            if len(partes) >= 4:
-                id_cuenta = int(partes[0])
-                # Aquí iría la lógica para cargar solo datos de particiones asignadas
-                # si DATA_DIR apuntara a archivos de partición específicos.
-                # Por ahora, carga todo del archivo global.
-                cuentas_data[id_cuenta] = {
-                    "id_cliente": int(partes[1]),
-                    "saldo": float(partes[2]),
-                    "tipo_cuenta": partes[3],
-                    "lock": threading.Lock()
-                }
-    log_message(f"Cuentas cargadas: {len(cuentas_data)}")
-
     # Cargar Transacciones
     transacciones_file = os.path.join(DATA_DIR, "transacciones", "transacciones.txt")
     if not os.path.exists(transacciones_file):
         log_message("Archivo de transacciones no encontrado. Creando archivo vacío...")
+        os.makedirs(os.path.dirname(transacciones_file), exist_ok=True)
         open(transacciones_file, "w", encoding='utf-8').close()
     
     transacciones_data.clear()
     with open(transacciones_file, "r", encoding='utf-8') as f:
         for linea in f:
-            linea = linea.strip();
+            linea = linea.strip()
             if not linea: continue
             partes = linea.split('|')
             if len(partes) >= 6:
@@ -141,6 +90,111 @@ def cargar_datos_iniciales():
                     "fecha_hora": partes[4], "estado": partes[5]
                 })
     log_message(f"Transacciones previas cargadas: {len(transacciones_data)}")
+
+def cargar_cuentas_particionadas():
+    """✅ CARGAR CUENTAS DE LAS PARTICIONES ASIGNADAS A ESTE NODO"""
+    global cuentas_data, DATA_DIR
+    
+    cuentas_data.clear()
+    total_cuentas_cargadas = 0
+    
+    # Para cada partición asignada a este nodo
+    for particion in particiones_nodo:
+        # Archivos creados por el ServerCentral
+        archivo_particion = os.path.join(DATA_DIR, particion, f"cuentas_{particion}.txt")
+        
+        if os.path.exists(archivo_particion):
+            log_message(f"Cargando cuentas de {archivo_particion}")
+            
+            with open(archivo_particion, "r", encoding='utf-8') as f:
+                cuentas_en_particion = 0
+                for linea in f:
+                    linea = linea.strip()
+                    if not linea: continue
+                    partes = linea.split('|')
+                    if len(partes) >= 4:
+                        id_cuenta = int(partes[0])
+                        cuentas_data[id_cuenta] = {
+                            "id_cliente": int(partes[1]),
+                            "saldo": float(partes[2]),
+                            "tipo_cuenta": partes[3],
+                            "lock": threading.Lock()
+                        }
+                        cuentas_en_particion += 1
+                        total_cuentas_cargadas += 1
+                
+                log_message(f"Partición {particion}: {cuentas_en_particion} cuentas cargadas")
+        else:
+            log_message(f"⚠️  Archivo no encontrado: {archivo_particion}")
+    
+    log_message(f"✅ TOTAL CUENTAS CARGADAS: {total_cuentas_cargadas}")
+
+def cargar_clientes_comun():
+    """✅ CARGAR CLIENTES DEL ARCHIVO COMÚN"""
+    global clientes_data, DATA_DIR
+    
+    clientes_file = os.path.join(DATA_DIR, "clientes", "clientes.txt")
+    
+    if os.path.exists(clientes_file):
+        clientes_data.clear()
+        with open(clientes_file, "r", encoding='utf-8') as f:
+            for linea in f:
+                linea = linea.strip()
+                if not linea: continue
+                partes = linea.split('|')
+                if len(partes) >= 4:
+                    id_cliente = int(partes[0])
+                    clientes_data[id_cliente] = {
+                        "nombre": partes[1], 
+                        "email": partes[2], 
+                        "telefono": partes[3]
+                    }
+        log_message(f"Clientes cargados: {len(clientes_data)}")
+    else:
+        log_message(f"⚠️  Archivo de clientes no encontrado: {clientes_file}")
+
+def guardar_cuentas_a_archivo():
+    """✅ GUARDAR CUENTAS EN SUS PARTICIONES CORRESPONDIENTES"""
+    global DATA_DIR
+    
+    # Agrupar cuentas por partición
+    cuentas_por_particion = {}
+    for particion in particiones_nodo:
+        cuentas_por_particion[particion] = []
+    
+    # Distribuir cuentas según algún criterio (ej: módulo del ID)
+    for id_cuenta, data in cuentas_data.items():
+        # Determinar partición basada en ID de cuenta
+        if id_cuenta >= 101 and id_cuenta <= 1350:
+            particion_destino = "parte1"
+        elif id_cuenta >= 1351 and id_cuenta <= 2600:
+            particion_destino = "parte2"
+        elif id_cuenta >= 2601 and id_cuenta <= 3850:
+            particion_destino = "parte3"
+        elif id_cuenta >= 3851 and id_cuenta <= 5100:
+            particion_destino = "parte4"
+        else:
+            particion_destino = "parte1"  # default
+        
+        if particion_destino in cuentas_por_particion:
+            cuentas_por_particion[particion_destino].append((id_cuenta, data))
+    
+    # Guardar cada partición
+    for particion, cuentas in cuentas_por_particion.items():
+        if cuentas:  # Solo si hay cuentas en esta partición
+            archivo_particion = os.path.join(DATA_DIR, particion, f"cuentas_{particion}.txt")
+            os.makedirs(os.path.dirname(archivo_particion), exist_ok=True)
+            
+            try:
+                with open(archivo_particion, "w", encoding='utf-8') as f:
+                    for id_cuenta, data in cuentas:
+                        f.write(f"{id_cuenta}|{data['id_cliente']}|{data['saldo']:.2f}|{data['tipo_cuenta']}\n")
+                log_message(f"Guardadas {len(cuentas)} cuentas en {particion}")
+            except Exception as e:
+                log_message(f"Error guardando {particion}: {e}")
+
+# ✅ ELIMINAR LA FUNCIÓN ANTERIOR crear_directorios_si_no_existen() 
+# Ya no es necesaria porque usamos las particiones del ServerCentral
 
 
 def guardar_cuentas_a_archivo():
