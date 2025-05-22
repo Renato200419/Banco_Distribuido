@@ -13,7 +13,7 @@ import * as path from 'path';
 class NodoTrabajador {
     // Configuración del nodo
     private ID_NODO: number = 2; // Nodo TypeScript por defecto
-    private PUERTO: number = 9103;
+    private PUERTO: number = 9102;
     private IP_SERVIDOR_CENTRAL: string = '192.168.18.31';
     private PUERTO_SERVIDOR_CENTRAL: number = 9000;
     
@@ -94,7 +94,7 @@ class NodoTrabajador {
                 
             case 2:
                 this.particiones.add('parte1');
-                this.particiones.add('parte3');
+                this.particiones.add('parte2');
                 this.particiones.add('parte4');
                 break;
                 
@@ -106,7 +106,7 @@ class NodoTrabajador {
                 
             case 4:
                 this.particiones.add('parte1');
-                this.particiones.add('parte2');
+                this.particiones.add('parte3');
                 this.particiones.add('parte4');
                 break;
                 
