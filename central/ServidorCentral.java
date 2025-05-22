@@ -304,40 +304,36 @@ public class ServidorCentral {
         }
     }
     
-    /**
-     * SEGÚN PDF: Carga configuración de nodos con replicación triple
-     */
+
     private static void cargarConfiguracionNodos() {
-        // CASO 1: LP1 = LP2 (Java)
+        // CASO 1: LP1 = LP2 (Java) - Nodo ID 1
         NodoTrabajador nodo1 = new NodoTrabajador("192.168.18.36", 9101, "java");
-        nodo1.particiones.addAll(Arrays.asList("parte1", "parte2", "parte3")); // Replicación
+        nodo1.particiones.addAll(Arrays.asList("parte1", "parte2", "parte3"));
         
-        // CASO 2: LP1 <> LP2 (TypeScript)
-        NodoTrabajador nodo2 = new NodoTrabajador("192.168.18.35", 9103, "typescript");
-        nodo2.particiones.addAll(Arrays.asList("parte1", "parte3", "parte4")); // Replicación
+        // CASO 2: LP1 <> LP2 (TypeScript) - Nodo ID 2
+        NodoTrabajador nodo2 = new NodoTrabajador("192.168.18.35", 9102, "typescript");
+        nodo2.particiones.addAll(Arrays.asList("parte1", "parte2", "parte4"));
         
-        // CASO 3: Nodos adicionales (comentados hasta que estén listos)
-        // NodoTrabajador nodo3 = new NodoTrabajador("192.168.18.34", 9102, "python");
-        // nodo3.particiones.addAll(Arrays.asList("parte2", "parte3", "parte4")); // Replicación
+        // CASO 3: Nodo adicional (Python) - Nodo ID 3
+        NodoTrabajador nodo3 = new NodoTrabajador("192.168.18.33", 9103, "python");
+        nodo3.particiones.addAll(Arrays.asList("parte2", "parte3", "parte4"));
         
-        // NodoTrabajador nodo4 = new NodoTrabajador("192.168.18.33", 9104, "javascript");
-        // nodo4.particiones.addAll(Arrays.asList("parte1", "parte2", "parte4")); // Replicación
+        // CASO 3: Nodo adicional (JavaScript) - Nodo ID 4
+        NodoTrabajador nodo4 = new NodoTrabajador("192.168.18.37", 9104, "javascript");
+        nodo4.particiones.addAll(Arrays.asList("parte1", "parte3", "parte4"));
         
-        // Agregar nodos a la lista
         nodosTrabajadores.add(nodo1);
         nodosTrabajadores.add(nodo2);
-        // nodosTrabajadores.add(nodo3);
-        // nodosTrabajadores.add(nodo4);
+        nodosTrabajadores.add(nodo3);
+        nodosTrabajadores.add(nodo4);
         
         log("CONFIGURACIÓN DE NODOS:");
         for (NodoTrabajador nodo : nodosTrabajadores) {
-            log("  " + nodo);
+            log("  " + nodo + " - Particiones: " + nodo.particiones);
         }
     }
     
-    /**
-     * SEGÚN PDF: Monitor de estado de nodos (TOLERANCIA A FALLOS)
-     */
+
     private static void iniciarMonitorNodos() {
         Thread hiloMonitor = new Thread(() -> {
             while (true) {
