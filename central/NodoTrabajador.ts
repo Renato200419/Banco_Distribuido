@@ -1,20 +1,20 @@
 import * as net from 'net';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as readline from 'readline';
 
 /**
  * NodoTrabajador - Implementación TypeScript de un nodo trabajador
  * 
- * Este nodo procesará solicitudes del Servidor Central para consultar saldos 
- * y realizar transferencias entre cuentas. Gestiona particiones de datos
- * y soporta replicación.
+ * CORREGIDO PARA FUNCIONAR CON EL SERVIDOR CENTRAL
+ * - Carga datos desde particiones correctas
+ * - Maneja miles de cuentas
+ * - Compatible con IDs 101-5100
  */
-class NodoTrabajador2 {
+class NodoTrabajador {
     // Configuración del nodo
-    private ID_NODO: number = 3; // Por defecto, el nodo 3 es TypeScript según el código Java
-    private PUERTO: number = 9103; // 9100 + ID_NODO
-    private IP_SERVIDOR_CENTRAL: string = '192.168.18.29'; // IP de la VM donde está el servidor central
+    private ID_NODO: number = 2; // Nodo TypeScript por defecto
+    private PUERTO: number = 9103;
+    private IP_SERVIDOR_CENTRAL: string = '192.168.18.31';
     private PUERTO_SERVIDOR_CENTRAL: number = 9000;
     
     // Directorio de datos
@@ -31,18 +31,17 @@ class NodoTrabajador2 {
     private cuentas: Map<number, Map<string, any>> = new Map();
     private transacciones: Array<Map<string, any>> = [];
     
-    // Locks para operaciones concurrentes (simulados con Map en TypeScript)
+    // Locks para operaciones concurrentes (simulados)
     private cuentaLocks: Map<number, boolean> = new Map();
     private transaccionLock: boolean = false;
     
     // Servidor
-    private server!: net.Server; // Usando el operador ! para indicar que será inicializado
+    private server!: net.Server;
     
     /**
      * Constructor
      */
     constructor(idNodo?: number, ipServidorCentral?: string) {
-        // Procesar argumentos si se proporcionan
         if (idNodo) {
             this.ID_NODO = idNodo;
             this.PUERTO = 9100 + this.ID_NODO;
@@ -62,7 +61,12 @@ class NodoTrabajador2 {
      * Inicializa el nodo trabajador
      */
     private inicializar(): void {
-        this.log(`Iniciando Nodo Trabajador ${this.ID_NODO} en puerto ${this.PUERTO}`);
+        this.log('=== NODO TRABAJADOR TYPESCRIPT ===');
+        this.log(`ID Nodo: ${this.ID_NODO}, Puerto: ${this.PUERTO}`);
+        this.log(`Servidor Central: ${this.IP_SERVIDOR_CENTRAL}:${this.PUERTO_SERVIDOR_CENTRAL}`);
+        
+        // Crear directorios necesarios
+        this.crearDirectorios();
         
         // Configurar particiones según el ID del nodo
         this.configurarParticiones();
@@ -80,36 +84,35 @@ class NodoTrabajador2 {
      * Configura las particiones que gestionará este nodo
      */
     private configurarParticiones(): void {
-        // Esto dependerá del ID del nodo y debe coincidir con la configuración
-        // del servidor central
+        // Configuración según ID del nodo (compatible con ServidorCentral)
         switch (this.ID_NODO) {
             case 1:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte2.1');
-                this.particiones.add('parte2.2');
-                this.particiones.add('parte2.3');
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
+                this.particiones.add('parte3');
                 break;
                 
             case 2:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte1.2');
-                this.particiones.add('parte2.2');
-                this.particiones.add('parte2.3');
-                this.particiones.add('parte2.4');
+                this.particiones.add('parte1');
+                this.particiones.add('parte3');
+                this.particiones.add('parte4');
                 break;
                 
             case 3:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte1.2');
-                this.particiones.add('parte1.3');
-                this.particiones.add('parte2.3');
-                this.particiones.add('parte2.4');
+                this.particiones.add('parte2');
+                this.particiones.add('parte3');
+                this.particiones.add('parte4');
+                break;
+                
+            case 4:
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
+                this.particiones.add('parte4');
                 break;
                 
             default:
-                // Configuración genérica para otros nodos
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte2.1');
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
                 break;
         }
         
@@ -120,22 +123,21 @@ class NodoTrabajador2 {
      * Carga los datos de clientes y cuentas
      */
     private cargarDatos(): void {
-        // Crear directorios si no existen
-        this.crearDirectorios();
+        this.log('Iniciando carga de datos...');
         
         // Cargar clientes
-        this.log('Cargando datos de clientes...');
         this.cargarClientes();
         
-        // Cargar cuentas
-        this.log('Cargando datos de cuentas...');
-        this.cargarCuentas();
+        // Cargar cuentas desde particiones
+        this.cargarCuentasDesdeParticiones();
         
         // Cargar transacciones
-        this.log('Cargando datos de transacciones...');
         this.cargarTransacciones();
         
-        this.log(`Datos cargados correctamente. Clientes: ${this.clientes.size}, Cuentas: ${this.cuentas.size}, Transacciones: ${this.transacciones.length}`);
+        this.log('Datos cargados correctamente:');
+        this.log(`  - Clientes: ${this.clientes.size}`);
+        this.log(`  - Cuentas: ${this.cuentas.size}`);
+        this.log(`  - Transacciones: ${this.transacciones.length}`);
     }
     
     /**
@@ -143,7 +145,13 @@ class NodoTrabajador2 {
      */
     private crearDirectorios(): void {
         try {
-            // Directorios para datos
+            // Crear directorio de logs
+            const logsDir = path.dirname(this.LOG_FILE);
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir, { recursive: true });
+            }
+            
+            // Crear directorios de datos si no existen
             if (!fs.existsSync(this.DATA_DIR)) {
                 fs.mkdirSync(this.DATA_DIR, { recursive: true });
             }
@@ -153,23 +161,22 @@ class NodoTrabajador2 {
                 fs.mkdirSync(clientesDir, { recursive: true });
             }
             
-            const cuentasDir = path.join(this.DATA_DIR, 'cuentas');
-            if (!fs.existsSync(cuentasDir)) {
-                fs.mkdirSync(cuentasDir, { recursive: true });
-            }
-            
             const transaccionesDir = path.join(this.DATA_DIR, 'transacciones');
             if (!fs.existsSync(transaccionesDir)) {
                 fs.mkdirSync(transaccionesDir, { recursive: true });
             }
             
-            // Directorio para logs
-            const logsDir = path.dirname(this.LOG_FILE);
-            if (!fs.existsSync(logsDir)) {
-                fs.mkdirSync(logsDir, { recursive: true });
+            // Crear directorios de particiones
+            for (let i = 1; i <= 4; i++) {
+                const particionDir = path.join(this.DATA_DIR, `parte${i}`);
+                if (!fs.existsSync(particionDir)) {
+                    fs.mkdirSync(particionDir, { recursive: true });
+                }
             }
+            
+            this.log('Directorios creados correctamente');
         } catch (err) {
-            console.error('Error creando directorios:', err);
+            this.log(`Error creando directorios: ${err}`);
         }
     }
     
@@ -180,64 +187,72 @@ class NodoTrabajador2 {
         const clientesFile = path.join(this.DATA_DIR, 'clientes', 'clientes.txt');
         
         if (!fs.existsSync(clientesFile)) {
-            this.log('Archivo de clientes no encontrado. Creando archivo de prueba...');
-            fs.writeFileSync(clientesFile, 
-                '1|Juan Pérez|juan@email.com|987654321\n' +
-                '2|María López|maria@email.com|998877665\n' +
-                '3|Carlos Rodríguez|carlos@email.com|912345678\n'
-            );
+            this.log('Archivo de clientes no encontrado, esperando que el servidor lo cree...');
+            return;
         }
         
-        const contenido = fs.readFileSync(clientesFile, 'utf8');
-        const lineas = contenido.split('\n');
-        
-        for (const linea of lineas) {
-            if (linea.trim() === '') continue;
+        try {
+            const contenido = fs.readFileSync(clientesFile, 'utf8');
+            const lineas = contenido.split('\n');
             
-            const partes = linea.split('|');
-            if (partes.length >= 4) {
-                const idCliente = parseInt(partes[0]);
-                const cliente = new Map<string, string>();
-                cliente.set('nombre', partes[1]);
-                cliente.set('email', partes[2]);
-                cliente.set('telefono', partes[3]);
-                this.clientes.set(idCliente, cliente);
+            for (const linea of lineas) {
+                if (linea.trim() === '') continue;
+                
+                const partes = linea.split('|');
+                if (partes.length >= 4) {
+                    const idCliente = parseInt(partes[0]);
+                    const cliente = new Map<string, string>();
+                    cliente.set('nombre', partes[1]);
+                    cliente.set('email', partes[2]);
+                    cliente.set('telefono', partes[3]);
+                    this.clientes.set(idCliente, cliente);
+                }
             }
+            
+            this.log(`Clientes cargados: ${this.clientes.size}`);
+        } catch (err) {
+            this.log(`Error cargando clientes: ${err}`);
         }
     }
     
     /**
-     * Carga los datos de cuentas desde archivos
+     * Carga cuentas desde las particiones configuradas
      */
-    private cargarCuentas(): void {
-        const cuentasFile = path.join(this.DATA_DIR, 'cuentas', 'cuentas.txt');
-        
-        if (!fs.existsSync(cuentasFile)) {
-            this.log('Archivo de cuentas no encontrado. Creando archivo de prueba...');
-            fs.writeFileSync(cuentasFile, 
-                '101|1|1500.00|Ahorros\n' +
-                '102|2|3200.50|Corriente\n' +
-                '103|3|2100.75|Ahorros\n'
-            );
-        }
-        
-        const contenido = fs.readFileSync(cuentasFile, 'utf8');
-        const lineas = contenido.split('\n');
-        
-        for (const linea of lineas) {
-            if (linea.trim() === '') continue;
+    private cargarCuentasDesdeParticiones(): void {
+        for (const particion of this.particiones) {
+            const particionFile = path.join(this.DATA_DIR, particion, `cuentas_${particion}.txt`);
             
-            const partes = linea.split('|');
-            if (partes.length >= 4) {
-                const idCuenta = parseInt(partes[0]);
-                const cuenta = new Map<string, any>();
-                cuenta.set('id_cliente', parseInt(partes[1]));
-                cuenta.set('saldo', parseFloat(partes[2]));
-                cuenta.set('tipo_cuenta', partes[3]);
-                this.cuentas.set(idCuenta, cuenta);
+            if (!fs.existsSync(particionFile)) {
+                this.log(`Archivo de partición no encontrado: ${particionFile}`);
+                continue;
+            }
+            
+            try {
+                const contenido = fs.readFileSync(particionFile, 'utf8');
+                const lineas = contenido.split('\n');
+                let cuentasCargadas = 0;
                 
-                // Crear lock para esta cuenta
-                this.cuentaLocks.set(idCuenta, false);
+                for (const linea of lineas) {
+                    if (linea.trim() === '') continue;
+                    
+                    const partes = linea.split('|');
+                    if (partes.length >= 4) {
+                        const idCuenta = parseInt(partes[0]);
+                        const cuenta = new Map<string, any>();
+                        cuenta.set('id_cliente', parseInt(partes[1]));
+                        cuenta.set('saldo', parseFloat(partes[2]));
+                        cuenta.set('tipo_cuenta', partes[3]);
+                        this.cuentas.set(idCuenta, cuenta);
+                        
+                        // Crear lock para esta cuenta
+                        this.cuentaLocks.set(idCuenta, false);
+                        cuentasCargadas++;
+                    }
+                }
+                
+                this.log(`Partición ${particion}: ${cuentasCargadas} cuentas cargadas`);
+            } catch (err) {
+                this.log(`Error cargando partición ${particion}: ${err}`);
             }
         }
     }
@@ -249,9 +264,16 @@ class NodoTrabajador2 {
         const transaccionesFile = path.join(this.DATA_DIR, 'transacciones', 'transacciones.txt');
         
         if (!fs.existsSync(transaccionesFile)) {
-            this.log('Archivo de transacciones no encontrado. Creando archivo vacío...');
-            fs.writeFileSync(transaccionesFile, '');
-        } else {
+            this.log('Archivo de transacciones no encontrado, creando archivo vacío...');
+            try {
+                fs.writeFileSync(transaccionesFile, '');
+            } catch (err) {
+                this.log(`Error creando archivo de transacciones: ${err}`);
+            }
+            return;
+        }
+        
+        try {
             const contenido = fs.readFileSync(transaccionesFile, 'utf8');
             const lineas = contenido.split('\n');
             
@@ -270,50 +292,8 @@ class NodoTrabajador2 {
                     this.transacciones.push(transaccion);
                 }
             }
-        }
-    }
-    
-    /**
-     * Guarda las transacciones en el archivo
-     */
-    private guardarTransacciones(): void {
-        try {
-            const transaccionesFile = path.join(this.DATA_DIR, 'transacciones', 'transacciones.txt');
-            let contenido = '';
-            
-            for (const transaccion of this.transacciones) {
-                contenido += `${transaccion.get('id_transacc')}|` +
-                             `${transaccion.get('id_orig')}|` +
-                             `${transaccion.get('id_dest')}|` +
-                             `${transaccion.get('monto')}|` +
-                             `${transaccion.get('fecha_hora')}|` +
-                             `${transaccion.get('estado')}\n`;
-            }
-            
-            fs.writeFileSync(transaccionesFile, contenido);
         } catch (err) {
-            this.log(`Error guardando transacciones: ${err}`);
-        }
-    }
-    
-    /**
-     * Guarda las cuentas en el archivo
-     */
-    private guardarCuentas(): void {
-        try {
-            const cuentasFile = path.join(this.DATA_DIR, 'cuentas', 'cuentas.txt');
-            let contenido = '';
-            
-            for (const [idCuenta, cuenta] of this.cuentas.entries()) {
-                contenido += `${idCuenta}|` +
-                             `${cuenta.get('id_cliente')}|` +
-                             `${cuenta.get('saldo')}|` +
-                             `${cuenta.get('tipo_cuenta')}\n`;
-            }
-            
-            fs.writeFileSync(cuentasFile, contenido);
-        } catch (err) {
-            this.log(`Error guardando cuentas: ${err}`);
+            this.log(`Error cargando transacciones: ${err}`);
         }
     }
     
@@ -361,7 +341,7 @@ class NodoTrabajador2 {
         
         // Iniciar el servidor
         this.server.listen(this.PUERTO, () => {
-            this.log(`Servidor escuchando en puerto ${this.PUERTO}`);
+            this.log(`Servidor listo para recibir conexiones en puerto ${this.PUERTO}`);
         });
     }
     
@@ -369,11 +349,15 @@ class NodoTrabajador2 {
      * Maneja una solicitud entrante
      */
     private manejarSolicitud(solicitud: string, socket: net.Socket): void {
+        if (!solicitud) {
+            // Health check o conexión cerrada
+            return;
+        }
+        
         this.log(`Solicitud recibida: ${solicitud}`);
         
         try {
-            // Parsear la solicitud
-            // Formato esperado: TASK|idTarea|operacion|param1|param2|...
+            // Parsear la solicitud: TASK|idTarea|operacion|param1|param2|...
             const partes = solicitud.split('|');
             
             if (partes.length < 3 || partes[0] !== 'TASK') {
@@ -402,11 +386,10 @@ class NodoTrabajador2 {
                     break;
             }
             
-            // Enviar respuesta
-            // Formato: RESPONSE|idTarea|resultado
+            // Enviar respuesta: RESPONSE|idTarea|resultado
             const respuesta = `RESPONSE|${idTarea}|${resultado}\n`;
             socket.write(respuesta);
-            this.log(`Respuesta enviada: ${respuesta}`);
+            this.log(`Respuesta enviada para tarea ${idTarea}: ${resultado}`);
             
         } catch (err) {
             this.log(`Error procesando solicitud: ${err}`);
@@ -430,9 +413,8 @@ class NodoTrabajador2 {
                 return `ERROR|Cuenta no encontrada: ${idCuenta}`;
             }
             
-            // Obtener el saldo (con lock para evitar condiciones de carrera)
-            const lock = this.adquirirLockCuenta(idCuenta);
-            if (!lock) {
+            // Obtener el saldo con lock
+            if (!this.adquirirLockCuenta(idCuenta)) {
                 return 'ERROR|No se pudo adquirir lock para la cuenta';
             }
             
@@ -486,7 +468,7 @@ class NodoTrabajador2 {
                 const saldoOrigen = this.cuentas.get(cuentaOrigen)!.get('saldo');
                 
                 if (saldoOrigen < monto) {
-                    return 'ERROR|Saldo insuficiente';
+                    return `ERROR|Saldo insuficiente. Disponible: ${saldoOrigen.toFixed(2)}`;
                 }
                 
                 // Realizar la transferencia
@@ -496,37 +478,9 @@ class NodoTrabajador2 {
                 this.cuentas.get(cuentaDestino)!.set('saldo', saldoDestino + monto);
                 
                 // Registrar la transacción
-                if (!this.adquirirLockTransaccion()) {
-                    return 'ERROR|No se pudo adquirir lock para registrar la transacción';
-                }
+                this.registrarTransaccion(cuentaOrigen, cuentaDestino, monto);
                 
-                try {
-                    // Generar ID de transacción (simplificado)
-                    const idTransaccion = this.transacciones.length + 1;
-                    
-                    // Fecha actual formateada
-                    const now = new Date();
-                    const fechaHora = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-                    
-                    // Crear registro de transacción
-                    const transaccion = new Map<string, any>();
-                    transaccion.set('id_transacc', idTransaccion);
-                    transaccion.set('id_orig', cuentaOrigen);
-                    transaccion.set('id_dest', cuentaDestino);
-                    transaccion.set('monto', monto);
-                    transaccion.set('fecha_hora', fechaHora);
-                    transaccion.set('estado', 'Confirmada');
-                    
-                    this.transacciones.push(transaccion);
-                    
-                    // Guardar cambios en archivos
-                    this.guardarCuentas();
-                    this.guardarTransacciones();
-                    
-                    return 'OK|Transferencia completada';
-                } finally {
-                    this.liberarLockTransaccion();
-                }
+                return 'OK|Transferencia completada';
                 
             } finally {
                 this.liberarLockCuenta(cuentaOrigen);
@@ -540,10 +494,43 @@ class NodoTrabajador2 {
     }
     
     /**
+     * Registra una transacción
+     */
+    private registrarTransaccion(cuentaOrigen: number, cuentaDestino: number, monto: number): void {
+        if (!this.adquirirLockTransaccion()) {
+            this.log('No se pudo registrar la transacción - lock no disponible');
+            return;
+        }
+        
+        try {
+            const idTransaccion = this.transacciones.length + 1;
+            
+            // Fecha actual formateada
+            const now = new Date();
+            const fechaHora = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            // Crear registro de transacción
+            const transaccion = new Map<string, any>();
+            transaccion.set('id_transacc', idTransaccion);
+            transaccion.set('id_orig', cuentaOrigen);
+            transaccion.set('id_dest', cuentaDestino);
+            transaccion.set('monto', monto);
+            transaccion.set('fecha_hora', fechaHora);
+            transaccion.set('estado', 'Confirmada');
+            
+            this.transacciones.push(transaccion);
+            
+            this.log(`Transacción registrada: ${cuentaOrigen} -> ${cuentaDestino} (${monto})`);
+            
+        } finally {
+            this.liberarLockTransaccion();
+        }
+    }
+    
+    /**
      * Adquiere un lock para una cuenta
      */
     private adquirirLockCuenta(idCuenta: number): boolean {
-        // Implementación simple de lock con timeout
         let intentos = 0;
         const maxIntentos = 50;
         
@@ -572,7 +559,6 @@ class NodoTrabajador2 {
      * Adquiere locks para dos cuentas en orden para evitar deadlocks
      */
     private adquirirLocksOrdenados(cuenta1: number, cuenta2: number): boolean {
-        // Adquirir locks en orden para evitar deadlocks
         const [primera, segunda] = cuenta1 < cuenta2 ? [cuenta1, cuenta2] : [cuenta2, cuenta1];
         
         if (!this.adquirirLockCuenta(primera)) {
@@ -591,7 +577,6 @@ class NodoTrabajador2 {
      * Adquiere un lock para transacciones
      */
     private adquirirLockTransaccion(): boolean {
-        // Implementación simple de lock con timeout
         let intentos = 0;
         const maxIntentos = 50;
         
@@ -601,7 +586,6 @@ class NodoTrabajador2 {
                 return true;
             }
             
-            // Esperar un poco antes de reintentar
             this.sleep(100);
             intentos++;
         }
@@ -641,7 +625,6 @@ class NodoTrabajador2 {
         try {
             fs.appendFileSync(this.LOG_FILE, logLine + '\n');
         } catch (err) {
-            // Error silencioso - ya imprimimos en consola
             console.error(`Error escribiendo en log: ${err}`);
         }
     }
@@ -674,7 +657,7 @@ function main(): void {
     }
     
     // Crear y ejecutar el nodo trabajador
-    const nodo = new NodoTrabajador2(idNodo, ipServidorCentral);
+    const nodo = new NodoTrabajador(idNodo, ipServidorCentral);
     
     // Manejar señales para cierre adecuado
     process.on('SIGINT', () => {
