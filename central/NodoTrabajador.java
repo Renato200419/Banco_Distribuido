@@ -10,26 +10,27 @@ import java.nio.file.*;
 /**
  * NodoTrabajador - Implementación Java de un nodo trabajador
  * 
- * Este nodo procesará solicitudes del Servidor Central para consultar saldos 
- * y realizar transferencias entre cuentas. Gestiona particiones de datos
- * y soporta replicación.
+ * CORREGIDO PARA FUNCIONAR CON EL SERVIDOR CENTRAL
+ * - Carga datos desde particiones correctas
+ * - Maneja miles de cuentas
+ * - Compatible con IDs 101-5100
  */
 public class NodoTrabajador {
     // Configuración del nodo
     private static int ID_NODO = 1;
     private static int PUERTO = 9101;
-    private static String IP_SERVIDOR_CENTRAL = "192.168.18.29"; // Actualizar con la IP real
+    private static String IP_SERVIDOR_CENTRAL = "192.168.18.31"; // IP del servidor central
     private static int PUERTO_SERVIDOR_CENTRAL = 9000;
     
-    // Directorio de datos
-    private static final String DATA_DIR = "../data";
+    // Directorio de datos (CORREGIDO PARA TU ESTRUCTURA)
+    private static final String DATA_DIR = "data"; // Sin ../ porque está en el mismo directorio
     
     // Conjunto de particiones que gestiona este nodo
     private static Set<String> particiones = new HashSet<>();
     
     // Para registro de actividad
     private static final SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final String LOG_FILE = "../logs/nodo" + ID_NODO + ".log";
+    private static String LOG_FILE = "../logs/nodo1.log";
     
     // Estructuras de datos para clientes y cuentas
     private static Map<Integer, Map<String, String>> clientes = new HashMap<>();
@@ -51,6 +52,7 @@ public class NodoTrabajador {
         if (args.length >= 1) {
             ID_NODO = Integer.parseInt(args[0]);
             PUERTO = 9100 + ID_NODO;
+            LOG_FILE = "logs/nodo" + ID_NODO + ".log"; // Sin ../
         }
         
         if (args.length >= 2) {
@@ -73,7 +75,12 @@ public class NodoTrabajador {
      * Inicializa el nodo trabajador
      */
     private static void inicializar() throws IOException {
-        log("Iniciando Nodo Trabajador " + ID_NODO + " en puerto " + PUERTO);
+        log("=== NODO TRABAJADOR JAVA ===");
+        log("ID Nodo: " + ID_NODO + ", Puerto: " + PUERTO);
+        log("Servidor Central: " + IP_SERVIDOR_CENTRAL + ":" + PUERTO_SERVIDOR_CENTRAL);
+        
+        // Crear directorios necesarios
+        crearDirectorios();
         
         // Configurar particiones según el ID del nodo
         configurarParticiones();
@@ -82,36 +89,61 @@ public class NodoTrabajador {
         cargarDatos();
         
         // Crear pool de hilos
-        int numThreads = Runtime.getRuntime().availableProcessors();
+        int numThreads = Runtime.getRuntime().availableProcessors() * 2;
         threadPool = Executors.newFixedThreadPool(numThreads);
         log("Pool de hilos creado con " + numThreads + " hilos");
         
-        // Registrar con el servidor central (esto sería en un caso real)
-        // Por ahora asumimos que el servidor central ya conoce los nodos
+        log("Nodo trabajador inicializado correctamente");
+    }
+    
+    /**
+     * Crea directorios necesarios
+     */
+    private static void crearDirectorios() {
+        try {
+            // Crear directorio de logs
+            Files.createDirectories(Paths.get("logs"));
+            
+            // Crear directorios de datos si no existen
+            Files.createDirectories(Paths.get(DATA_DIR + "/clientes"));
+            Files.createDirectories(Paths.get(DATA_DIR + "/transacciones"));
+            
+            // Crear directorios de particiones
+            for (int i = 1; i <= 4; i++) {
+                Files.createDirectories(Paths.get(DATA_DIR + "/parte" + i));
+            }
+            
+            log("Directorios creados correctamente");
+        } catch (IOException e) {
+            log("Error creando directorios: " + e.getMessage());
+        }
     }
     
     /**
      * Configura las particiones que gestionará este nodo
      */
     private static void configurarParticiones() {
-        // Esto dependerá del ID del nodo y debe coincidir con la configuración
-        // del servidor central
+        // Configuración según ID del nodo (compatible con ServidorCentral)
         switch (ID_NODO) {
             case 1:
-                particiones.addAll(Arrays.asList("parte1.1", "parte2.1", "parte2.2", "parte2.3"));
+                particiones.addAll(Arrays.asList("parte1", "parte2", "parte3"));
                 break;
                 
             case 2:
-                particiones.addAll(Arrays.asList("parte1.1", "parte1.2", "parte2.2", "parte2.3", "parte2.4"));
+                particiones.addAll(Arrays.asList("parte1", "parte3", "parte4"));
                 break;
                 
             case 3:
-                particiones.addAll(Arrays.asList("parte1.1", "parte1.2", "parte1.3", "parte2.3", "parte2.4"));
+                particiones.addAll(Arrays.asList("parte2", "parte3", "parte4"));
+                break;
+                
+            case 4:
+                particiones.addAll(Arrays.asList("parte1", "parte2", "parte4"));
                 break;
                 
             default:
-                // Configuración genérica para otros nodos
-                particiones.addAll(Arrays.asList("parte1.1", "parte2.1"));
+                // Configuración por defecto
+                particiones.addAll(Arrays.asList("parte1", "parte2"));
                 break;
         }
         
@@ -122,45 +154,39 @@ public class NodoTrabajador {
      * Carga los datos de clientes y cuentas
      */
     private static void cargarDatos() throws IOException {
+        log("Iniciando carga de datos...");
+        
         // Cargar clientes
-        log("Cargando datos de clientes...");
         cargarClientes();
         
-        // Cargar cuentas
-        log("Cargando datos de cuentas...");
-        cargarCuentas();
+        // Cargar cuentas desde particiones
+        cargarCuentasDesdeParticiones();
         
         // Cargar transacciones
-        log("Cargando datos de transacciones...");
         cargarTransacciones();
         
-        log("Datos cargados correctamente. Clientes: " + clientes.size() + 
-            ", Cuentas: " + cuentas.size() + ", Transacciones: " + transacciones.size());
+        log("Datos cargados correctamente:");
+        log("  - Clientes: " + clientes.size());
+        log("  - Cuentas: " + cuentas.size());
+        log("  - Transacciones: " + transacciones.size());
     }
     
     /**
-     * Carga los datos de clientes desde archivos
+     * Carga los datos de clientes
      */
     private static void cargarClientes() throws IOException {
-        File clientesDir = new File(DATA_DIR + "/clientes");
-        if (!clientesDir.exists()) {
-            log("Directorio de clientes no encontrado. Creando directorio...");
-            clientesDir.mkdirs();
-        }
-        
         File clientesFile = new File(DATA_DIR + "/clientes/clientes.txt");
+        
         if (!clientesFile.exists()) {
-            log("Archivo de clientes no encontrado. Creando archivo de prueba...");
-            try (PrintWriter writer = new PrintWriter(clientesFile)) {
-                writer.println("1|Juan Pérez|juan@email.com|987654321");
-                writer.println("2|María López|maria@email.com|998877665");
-                writer.println("3|Carlos Rodríguez|carlos@email.com|912345678");
-            }
+            log("Archivo de clientes no encontrado, esperando que el servidor lo cree...");
+            return;
         }
         
         try (BufferedReader reader = new BufferedReader(new FileReader(clientesFile))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
+                if (linea.trim().isEmpty()) continue;
+                
                 String[] partes = linea.split("\\|");
                 if (partes.length >= 4) {
                     int idCliente = Integer.parseInt(partes[0]);
@@ -172,118 +198,76 @@ public class NodoTrabajador {
                 }
             }
         }
+        
+        log("Clientes cargados: " + clientes.size());
     }
     
     /**
-     * Carga los datos de cuentas desde archivos
+     * Carga cuentas desde las particiones configuradas
      */
-    private static void cargarCuentas() throws IOException {
-        File cuentasDir = new File(DATA_DIR + "/cuentas");
-        if (!cuentasDir.exists()) {
-            log("Directorio de cuentas no encontrado. Creando directorio...");
-            cuentasDir.mkdirs();
-        }
-        
-        File cuentasFile = new File(DATA_DIR + "/cuentas/cuentas.txt");
-        if (!cuentasFile.exists()) {
-            log("Archivo de cuentas no encontrado. Creando archivo de prueba...");
-            try (PrintWriter writer = new PrintWriter(cuentasFile)) {
-                writer.println("101|1|1500.00|Ahorros");
-                writer.println("102|2|3200.50|Corriente");
-                writer.println("103|3|2100.75|Ahorros");
+    private static void cargarCuentasDesdeParticiones() throws IOException {
+        for (String particion : particiones) {
+            File particionFile = new File(DATA_DIR + "/" + particion + "/cuentas_" + particion + ".txt");
+            
+            if (!particionFile.exists()) {
+                log("Archivo de partición no encontrado: " + particionFile.getPath());
+                continue;
             }
-        }
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(cuentasFile))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] partes = linea.split("\\|");
-                if (partes.length >= 4) {
-                    int idCuenta = Integer.parseInt(partes[0]);
-                    Map<String, Object> cuenta = new HashMap<>();
-                    cuenta.put("id_cliente", Integer.parseInt(partes[1]));
-                    cuenta.put("saldo", Double.parseDouble(partes[2]));
-                    cuenta.put("tipo_cuenta", partes[3]);
-                    cuentas.put(idCuenta, cuenta);
-                    
-                    // Crear lock para esta cuenta
-                    cuentaLocks.put(idCuenta, new ReentrantLock());
-                }
-            }
-        }
-    }
-    
-    /**
-     * Carga las transacciones desde archivos
-     */
-    private static void cargarTransacciones() throws IOException {
-        File transaccionesDir = new File(DATA_DIR + "/transacciones");
-        if (!transaccionesDir.exists()) {
-            log("Directorio de transacciones no encontrado. Creando directorio...");
-            transaccionesDir.mkdirs();
-        }
-        
-        File transaccionesFile = new File(DATA_DIR + "/transacciones/transacciones.txt");
-        if (!transaccionesFile.exists()) {
-            log("Archivo de transacciones no encontrado. Creando archivo vacío...");
-            transaccionesFile.createNewFile();
-        } else {
-            try (BufferedReader reader = new BufferedReader(new FileReader(transaccionesFile))) {
+            
+            int cuentasCargadas = 0;
+            try (BufferedReader reader = new BufferedReader(new FileReader(particionFile))) {
                 String linea;
                 while ((linea = reader.readLine()) != null) {
+                    if (linea.trim().isEmpty()) continue;
+                    
                     String[] partes = linea.split("\\|");
-                    if (partes.length >= 6) {
-                        Map<String, Object> transaccion = new HashMap<>();
-                        transaccion.put("id_transacc", Integer.parseInt(partes[0]));
-                        transaccion.put("id_orig", Integer.parseInt(partes[1]));
-                        transaccion.put("id_dest", Integer.parseInt(partes[2]));
-                        transaccion.put("monto", Double.parseDouble(partes[3]));
-                        transaccion.put("fecha_hora", partes[4]);
-                        transaccion.put("estado", partes[5]);
-                        transacciones.add(transaccion);
+                    if (partes.length >= 4) {
+                        int idCuenta = Integer.parseInt(partes[0]);
+                        Map<String, Object> cuenta = new HashMap<>();
+                        cuenta.put("id_cliente", Integer.parseInt(partes[1]));
+                        cuenta.put("saldo", Double.parseDouble(partes[2]));
+                        cuenta.put("tipo_cuenta", partes[3]);
+                        cuentas.put(idCuenta, cuenta);
+                        
+                        // Crear lock para esta cuenta
+                        cuentaLocks.put(idCuenta, new ReentrantLock());
+                        cuentasCargadas++;
                     }
                 }
             }
+            
+            log("Partición " + particion + ": " + cuentasCargadas + " cuentas cargadas");
         }
     }
     
     /**
-     * Guarda las transacciones en el archivo
+     * Carga las transacciones
      */
-    private static void guardarTransacciones() throws IOException {
+    private static void cargarTransacciones() throws IOException {
         File transaccionesFile = new File(DATA_DIR + "/transacciones/transacciones.txt");
         
-        try (PrintWriter writer = new PrintWriter(transaccionesFile)) {
-            for (Map<String, Object> transaccion : transacciones) {
-                writer.println(
-                    transaccion.get("id_transacc") + "|" +
-                    transaccion.get("id_orig") + "|" +
-                    transaccion.get("id_dest") + "|" +
-                    transaccion.get("monto") + "|" +
-                    transaccion.get("fecha_hora") + "|" +
-                    transaccion.get("estado")
-                );
-            }
+        if (!transaccionesFile.exists()) {
+            log("Archivo de transacciones no encontrado, creando archivo vacío...");
+            transaccionesFile.createNewFile();
+            return;
         }
-    }
-    
-    /**
-     * Guarda las cuentas en el archivo
-     */
-    private static void guardarCuentas() throws IOException {
-        File cuentasFile = new File(DATA_DIR + "/cuentas/cuentas.txt");
         
-        try (PrintWriter writer = new PrintWriter(cuentasFile)) {
-            for (Map.Entry<Integer, Map<String, Object>> entry : cuentas.entrySet()) {
-                int idCuenta = entry.getKey();
-                Map<String, Object> cuenta = entry.getValue();
+        try (BufferedReader reader = new BufferedReader(new FileReader(transaccionesFile))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                if (linea.trim().isEmpty()) continue;
                 
-                writer.println(
-                    idCuenta + "|" +
-                    cuenta.get("id_cliente") + "|" +
-                    cuenta.get("saldo") + "|" +
-                    cuenta.get("tipo_cuenta")
-                );
+                String[] partes = linea.split("\\|");
+                if (partes.length >= 6) {
+                    Map<String, Object> transaccion = new HashMap<>();
+                    transaccion.put("id_transacc", Integer.parseInt(partes[0]));
+                    transaccion.put("id_orig", Integer.parseInt(partes[1]));
+                    transaccion.put("id_dest", Integer.parseInt(partes[2]));
+                    transaccion.put("monto", Double.parseDouble(partes[3]));
+                    transaccion.put("fecha_hora", partes[4]);
+                    transaccion.put("estado", partes[5]);
+                    transacciones.add(transaccion);
+                }
             }
         }
     }
@@ -295,6 +279,8 @@ public class NodoTrabajador {
         log("Iniciando servidor en puerto " + PUERTO);
         
         try (ServerSocket serverSocket = new ServerSocket(PUERTO)) {
+            log("Servidor listo para recibir conexiones");
+            
             while (true) {
                 try {
                     Socket clienteSocket = serverSocket.accept();
@@ -319,16 +305,15 @@ public class NodoTrabajador {
         ) {
             // Leer la solicitud
             String solicitud = entrada.readLine();
-            log("Solicitud recibida: " + solicitud);
             
-            // Verificar que la solicitud no sea nula
             if (solicitud == null) {
-                log("Solicitud nula recibida, podría ser un health check o una conexión cerrada");
+                // Health check o conexión cerrada
                 return;
             }
             
-            // Parsear la solicitud
-            // Formato esperado: TASK|idTarea|operacion|param1|param2|...
+            log("Solicitud recibida: " + solicitud);
+            
+            // Parsear la solicitud: TASK|idTarea|operacion|param1|param2|...
             String[] partes = solicitud.split("\\|");
             
             if (partes.length < 3 || !partes[0].equals("TASK")) {
@@ -357,15 +342,13 @@ public class NodoTrabajador {
                     break;
             }
             
-            // Enviar respuesta
-            // Formato: RESPONSE|idTarea|resultado
+            // Enviar respuesta: RESPONSE|idTarea|resultado
             String respuesta = "RESPONSE|" + idTarea + "|" + resultado;
             salida.println(respuesta);
-            log("Respuesta enviada: " + respuesta);
+            log("Respuesta enviada para tarea " + idTarea + ": " + resultado);
             
         } catch (Exception e) {
             log("Error procesando solicitud: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -385,8 +368,12 @@ public class NodoTrabajador {
                 return "ERROR|Cuenta no encontrada: " + idCuenta;
             }
             
-            // Obtener el saldo (con lock para evitar condiciones de carrera)
+            // Obtener el saldo con lock
             ReentrantLock lock = cuentaLocks.get(idCuenta);
+            if (lock == null) {
+                return "ERROR|Lock no disponible para cuenta: " + idCuenta;
+            }
+            
             lock.lock();
             try {
                 double saldo = (double) cuentas.get(idCuenta).get("saldo");
@@ -433,6 +420,10 @@ public class NodoTrabajador {
             ReentrantLock lockOrigen = cuentaLocks.get(cuentaOrigen);
             ReentrantLock lockDestino = cuentaLocks.get(cuentaDestino);
             
+            if (lockOrigen == null || lockDestino == null) {
+                return "ERROR|Locks no disponibles para las cuentas";
+            }
+            
             ReentrantLock firstLock = cuentaOrigen < cuentaDestino ? lockOrigen : lockDestino;
             ReentrantLock secondLock = cuentaOrigen < cuentaDestino ? lockDestino : lockOrigen;
             
@@ -444,7 +435,7 @@ public class NodoTrabajador {
                     double saldoOrigen = (double) cuentas.get(cuentaOrigen).get("saldo");
                     
                     if (saldoOrigen < monto) {
-                        return "ERROR|Saldo insuficiente";
+                        return "ERROR|Saldo insuficiente. Disponible: " + String.format("%.2f", saldoOrigen);
                     }
                     
                     // Realizar la transferencia
@@ -454,30 +445,9 @@ public class NodoTrabajador {
                     cuentas.get(cuentaDestino).put("saldo", saldoDestino + monto);
                     
                     // Registrar la transacción
-                    transaccionLock.lock();
-                    try {
-                        // Generar ID de transacción (simplificado)
-                        int idTransaccion = transacciones.size() + 1;
-                        
-                        // Crear registro de transacción
-                        Map<String, Object> transaccion = new HashMap<>();
-                        transaccion.put("id_transacc", idTransaccion);
-                        transaccion.put("id_orig", cuentaOrigen);
-                        transaccion.put("id_dest", cuentaDestino);
-                        transaccion.put("monto", monto);
-                        transaccion.put("fecha_hora", formatoFecha.format(new Date()));
-                        transaccion.put("estado", "Confirmada");
-                        
-                        transacciones.add(transaccion);
-                        
-                        // Guardar cambios en archivos
-                        guardarCuentas();
-                        guardarTransacciones();
-                        
-                        return "OK|Transferencia completada";
-                    } finally {
-                        transaccionLock.unlock();
-                    }
+                    registrarTransaccion(cuentaOrigen, cuentaDestino, monto);
+                    
+                    return "OK|Transferencia completada";
                     
                 } finally {
                     secondLock.unlock();
@@ -495,6 +465,31 @@ public class NodoTrabajador {
     }
     
     /**
+     * Registra una transacción
+     */
+    private static void registrarTransaccion(int cuentaOrigen, int cuentaDestino, double monto) {
+        transaccionLock.lock();
+        try {
+            int idTransaccion = transacciones.size() + 1;
+            
+            Map<String, Object> transaccion = new HashMap<>();
+            transaccion.put("id_transacc", idTransaccion);
+            transaccion.put("id_orig", cuentaOrigen);
+            transaccion.put("id_dest", cuentaDestino);
+            transaccion.put("monto", monto);
+            transaccion.put("fecha_hora", formatoFecha.format(new Date()));
+            transaccion.put("estado", "Confirmada");
+            
+            transacciones.add(transaccion);
+            
+            log("Transacción registrada: " + cuentaOrigen + " -> " + cuentaDestino + " ($" + monto + ")");
+            
+        } finally {
+            transaccionLock.unlock();
+        }
+    }
+    
+    /**
      * Registra un mensaje de log
      */
     private static void log(String mensaje) {
@@ -506,7 +501,7 @@ public class NodoTrabajador {
         
         // Escribir en archivo de log
         try {
-            File logDir = new File("../logs");
+            File logDir = new File("logs");
             if (!logDir.exists()) {
                 logDir.mkdirs();
             }
@@ -517,7 +512,6 @@ public class NodoTrabajador {
                 out.println(logLine);
             }
         } catch (IOException e) {
-            // Error silencioso - ya imprimimos en consola
             System.err.println("Error escribiendo en log: " + e.getMessage());
         }
     }
