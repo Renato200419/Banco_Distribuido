@@ -44,11 +44,13 @@ def configurar_particiones_nodo_default(id_nodo_actual):
     particiones_nodo.clear() # Limpiar por si se llama múltiples veces
     # Lógica similar a tu NodoTrabajador.java o .ts
     if id_nodo_actual == 1:
-        particiones_nodo.update(["parte1.1", "parte2.1", "parte2.2", "parte2.3"])
-    elif id_nodo_actual == 2: # Este nodo Python
-        particiones_nodo.update(["parte1.1", "parte1.2", "parte2.2", "parte2.3", "parte2.4"])
-    elif id_nodo_actual == 3:
-        particiones_nodo.update(["parte1.1", "parte1.2", "parte1.3", "parte2.3", "parte2.4"])
+        particiones_nodo.update(["parte1", "parte2", "parte3"])
+    elif id_nodo_actual == 2: # Este nodo TypeScript
+        particiones_nodo.update(["parte1", "parte2", "parte4"])
+    elif id_nodo_actual == 3: # Este nodo Python
+        particiones_nodo.update(["parte2", "parte3", "parte4"])
+    elif id_nodo_actual == 4: # Nodo JavaScript
+        particiones_nodo.update(["parte1", "parte3", "parte4"])
     else:
         particiones_nodo.update([f"default_part_for_nodo{id_nodo_actual}.1", f"default_part_for_nodo{id_nodo_actual}.2"])
     log_message(f"Particiones por defecto configuradas: {particiones_nodo}")
