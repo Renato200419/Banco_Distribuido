@@ -12,8 +12,8 @@ var NodoTrabajadorJs = /** @class */ (function () {
      */
     function NodoTrabajadorJs(idNodo, ipServer) {
         // Configuración del nodo
-        this.ID = 2; // El nodo 2 es el de tipo JavaScript
-        this.PORT = 9102; // 9100 + ID
+        this.ID = 4; // El nodo 2 es el de tipo JavaScript
+        this.PORT = 9104; // 9100 + ID
         this.IP_SERVER_CENTRAL = 'localhost'; // Apunta al server central
         // Directorio de datos
         this.DATA_DIR = '../data';
@@ -51,7 +51,7 @@ var NodoTrabajadorJs = /** @class */ (function () {
         this.iniciarSERVER();
         this.log('Nodo trabajador inicializado correctamente');
     };
-    /**
+        /**
      * Configura las particiones que gestionará este nodo
      */
     NodoTrabajadorJs.prototype.configurarParticiones = function () {
@@ -59,29 +59,29 @@ var NodoTrabajadorJs = /** @class */ (function () {
         // del SERVER central
         switch (this.ID) {
             case 1:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte2.1');
-                this.particiones.add('parte2.2');
-                this.particiones.add('parte2.3');
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
+                this.particiones.add('parte3');
                 break;
             case 2:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte1.2');
-                this.particiones.add('parte2.2');
-                this.particiones.add('parte2.3');
-                this.particiones.add('parte2.4');
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
+                this.particiones.add('parte4');
                 break;
             case 3:
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte1.2');
-                this.particiones.add('parte1.3');
-                this.particiones.add('parte2.3');
-                this.particiones.add('parte2.4');
+                this.particiones.add('parte2');
+                this.particiones.add('parte3');
+                this.particiones.add('parte4');
+                break;
+            case 4:
+                this.particiones.add('parte1');
+                this.particiones.add('parte3');
+                this.particiones.add('parte4');
                 break;
             default:
                 // Configuración genérica para otros nodos
-                this.particiones.add('parte1.1');
-                this.particiones.add('parte2.1');
+                this.particiones.add('parte1');
+                this.particiones.add('parte2');
                 break;
         }
         this.log("Particiones configuradas: ".concat(Array.from(this.particiones).join(', ')));
