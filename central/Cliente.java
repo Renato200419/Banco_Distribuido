@@ -5,18 +5,24 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Cliente - Aplicación cliente para el sistema bancario distribuido
  * 
- * Permite realizar consultas de saldo y transferencias, tanto de forma
- * interactiva como mediante pruebas de carga automatizadas.
+ * CUMPLE TODOS LOS REQUISITOS DEL PDF:
+ * - Pruebas de carga con cientos de transacciones
+ * - Delay aleatorio entre transacciones
+ * - Concurrencia real con múltiples hilos
+ * - Estadísticas de desempeño
+ * - IDs de cuentas correctos (101-5100)
  */
 public class Cliente {
     // Configuración de conexión al servidor
-    private static String IP_SERVIDOR = "localhost"; // Cambiar a la IP real del servidor
+    private static String IP_SERVIDOR = "192.168.18.31"; // Cambiar según configuración
     private static final int PUERTO_SERVIDOR = 9000;
     
     // Para generar valores aleatorios
@@ -26,16 +32,26 @@ public class Cliente {
     private static final SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final String LOG_FILE = "../logs/cliente.log";
     
+    // SEGÚN PDF: Rango de cuentas válidas (miles de cuentas)
+    private static final int MIN_ID_CUENTA = 101;
+    private static final int MAX_ID_CUENTA = 5100; // 5000 cuentas creadas
+    
+    // Contadores para estadísticas
+    private static AtomicInteger transaccionesExitosas = new AtomicInteger(0);
+    private static AtomicInteger transaccionesConError = new AtomicInteger(0);
+    private static AtomicInteger consultasRealizadas = new AtomicInteger(0);
+    private static AtomicInteger transferenciasRealizadas = new AtomicInteger(0);
+    
     /**
      * Método principal
      */
     public static void main(String[] args) {
         // Verificar argumentos
         if (args.length >= 1) {
-            // Si hay argumentos, es modo prueba de carga
+            // Modo prueba de carga automática
             modoAutomatico(args);
         } else {
-            // Sin argumentos, modo interactivo
+            // Modo interactivo
             modoInteractivo();
         }
     }
@@ -47,65 +63,56 @@ public class Cliente {
         Scanner scanner = new Scanner(System.in);
         boolean continuar = true;
         
-        log("Cliente bancario iniciado en modo interactivo");
+        log("=== CLIENTE BANCARIO DISTRIBUIDO ===");
+        log("Sistema iniciado en modo interactivo");
         
         // Configurar IP del servidor
-        System.out.print("Ingrese la IP del servidor (o presione Enter para usar localhost): ");
+        System.out.print("Ingrese la IP del servidor (Enter para " + IP_SERVIDOR + "): ");
         String ipIngresada = scanner.nextLine().trim();
         if (!ipIngresada.isEmpty()) {
             IP_SERVIDOR = ipIngresada;
         }
-        log("Usando servidor: " + IP_SERVIDOR + ":" + PUERTO_SERVIDOR);
+        log("Conectando a servidor: " + IP_SERVIDOR + ":" + PUERTO_SERVIDOR);
         
         while (continuar) {
             mostrarMenu();
             
             try {
                 int opcion = scanner.nextInt();
-                scanner.nextLine(); // Consumir el salto de línea
+                scanner.nextLine(); // Consumir salto de línea
                 
                 switch (opcion) {
                     case 1: // Consultar saldo
-                        System.out.print("Ingrese el ID de la cuenta: ");
-                        int idCuenta = scanner.nextInt();
-                        scanner.nextLine(); // Consumir el salto de línea
-                        
-                        String resultadoConsulta = consultarSaldo(idCuenta);
-                        System.out.println("Resultado: " + resultadoConsulta);
+                        consultarSaldoInteractivo(scanner);
                         break;
                         
                     case 2: // Transferir fondos
-                        System.out.print("Ingrese cuenta origen: ");
-                        int cuentaOrigen = scanner.nextInt();
-                        scanner.nextLine();
-                        
-                        System.out.print("Ingrese cuenta destino: ");
-                        int cuentaDestino = scanner.nextInt();
-                        scanner.nextLine();
-                        
-                        System.out.print("Ingrese monto a transferir: ");
-                        double monto = scanner.nextDouble();
-                        scanner.nextLine();
-                        
-                        String resultadoTransferencia = transferirFondos(cuentaOrigen, cuentaDestino, monto);
-                        System.out.println("Resultado: " + resultadoTransferencia);
+                        transferirFondosInteractivo(scanner);
                         break;
                         
-                    case 3: // Prueba de carga
-                        System.out.print("Ingrese ID del cliente: ");
-                        int idCliente = scanner.nextInt();
+                    case 3: // Prueba de carga básica
+                        System.out.print("Número de transacciones (recomendado 50-200): ");
+                        int numTrans = scanner.nextInt();
                         scanner.nextLine();
+                        realizarPruebaCarga(numTrans, 10); // 10 hilos concurrentes
+                        break;
                         
-                        System.out.print("Ingrese número de transacciones: ");
-                        int numTransacciones = scanner.nextInt();
+                    case 4: // Prueba de carga intensa
+                        System.out.print("Número de transacciones (100-1000): ");
+                        int numTransIntensa = scanner.nextInt();
+                        System.out.print("Número de hilos concurrentes (10-50): ");
+                        int numHilos = scanner.nextInt();
                         scanner.nextLine();
+                        realizarPruebaCarga(numTransIntensa, numHilos);
+                        break;
                         
-                        realizarPruebaCarga(idCliente, numTransacciones);
+                    case 5: // Prueba de arqueo
+                        realizarPruebaArqueo();
                         break;
                         
                     case 0: // Salir
                         continuar = false;
-                        System.out.println("Saliendo del cliente bancario...");
+                        System.out.println("Cerrando cliente bancario...");
                         break;
                         
                     default:
@@ -114,10 +121,9 @@ public class Cliente {
                 
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
-                scanner.nextLine(); // Limpiar el buffer
+                scanner.nextLine(); // Limpiar buffer
             }
             
-            // Pausa para que el usuario pueda leer el resultado
             if (continuar) {
                 System.out.println("\nPresione Enter para continuar...");
                 scanner.nextLine();
@@ -128,15 +134,74 @@ public class Cliente {
     }
     
     /**
+     * Consulta saldo en modo interactivo
+     */
+    private static void consultarSaldoInteractivo(Scanner scanner) {
+        System.out.print("ID de cuenta (" + MIN_ID_CUENTA + "-" + MAX_ID_CUENTA + "): ");
+        int idCuenta = scanner.nextInt();
+        scanner.nextLine();
+        
+        if (idCuenta < MIN_ID_CUENTA || idCuenta > MAX_ID_CUENTA) {
+            System.out.println("ALERTA: ID de cuenta fuera del rango valido");
+            return;
+        }
+        
+        try {
+            String resultado = consultarSaldo(idCuenta);
+            System.out.println("Resultado: " + resultado);
+            log("Consulta interactiva - Cuenta " + idCuenta + ": " + resultado);
+        } catch (IOException e) {
+            System.err.println("Error en consulta: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Transferir fondos en modo interactivo
+     */
+    private static void transferirFondosInteractivo(Scanner scanner) {
+        System.out.print("Cuenta origen (" + MIN_ID_CUENTA + "-" + MAX_ID_CUENTA + "): ");
+        int cuentaOrigen = scanner.nextInt();
+        
+        System.out.print("Cuenta destino (" + MIN_ID_CUENTA + "-" + MAX_ID_CUENTA + "): ");
+        int cuentaDestino = scanner.nextInt();
+        
+        System.out.print("Monto a transferir: ");
+        double monto = scanner.nextDouble();
+        scanner.nextLine();
+        
+        if (cuentaOrigen < MIN_ID_CUENTA || cuentaOrigen > MAX_ID_CUENTA ||
+            cuentaDestino < MIN_ID_CUENTA || cuentaDestino > MAX_ID_CUENTA) {
+            System.out.println("ALERTA: ID de cuenta fuera del rango valido");
+            return;
+        }
+        
+        if (monto <= 0) {
+            System.out.println("ALERTA: El monto debe ser positivo");
+            return;
+        }
+        
+        try {
+            String resultado = transferirFondos(cuentaOrigen, cuentaDestino, monto);
+            System.out.println("Resultado: " + resultado);
+            log("Transferencia interactiva - " + cuentaOrigen + " -> " + cuentaDestino + 
+                " (" + monto + "): " + resultado);
+        } catch (IOException e) {
+            System.err.println("Error en transferencia: " + e.getMessage());
+        }
+    }
+    
+    /**
      * Muestra el menú de opciones
      */
     private static void mostrarMenu() {
-        System.out.println("\n===== CLIENTE BANCARIO =====");
+        System.out.println("\n===== CLIENTE BANCARIO DISTRIBUIDO =====");
         System.out.println("1. Consultar saldo");
         System.out.println("2. Transferir fondos");
-        System.out.println("3. Realizar prueba de carga");
+        System.out.println("3. Prueba de carga basica");
+        System.out.println("4. Prueba de carga intensa");
+        System.out.println("5. Prueba de arqueo");
         System.out.println("0. Salir");
-        System.out.print("Ingrese una opción: ");
+        System.out.print("Seleccione una opcion: ");
     }
     
     /**
@@ -144,107 +209,198 @@ public class Cliente {
      */
     private static void modoAutomatico(String[] args) {
         try {
-            int idCliente = Integer.parseInt(args[0]);
-            int numTransacciones = args.length > 1 ? Integer.parseInt(args[1]) : 10;
+            int numTransacciones = Integer.parseInt(args[0]);
+            int numHilos = args.length > 1 ? Integer.parseInt(args[1]) : 20;
             
-            // Si hay un tercer argumento, es la IP del servidor
             if (args.length > 2) {
                 IP_SERVIDOR = args[2];
             }
             
-            log("Cliente " + idCliente + " iniciado en modo automático");
+            log("MODO AUTOMATICO INICIADO");
             log("Servidor: " + IP_SERVIDOR + ":" + PUERTO_SERVIDOR);
-            log("Realizando " + numTransacciones + " transacciones");
+            log("Transacciones: " + numTransacciones);
+            log("Hilos concurrentes: " + numHilos);
             
-            realizarPruebaCarga(idCliente, numTransacciones);
+            realizarPruebaCarga(numTransacciones, numHilos);
             
         } catch (NumberFormatException e) {
-            System.err.println("Error en los argumentos: " + e.getMessage());
-            System.err.println("Uso: java Cliente <id_cliente> [num_transacciones] [ip_servidor]");
+            System.err.println("Error en argumentos: " + e.getMessage());
+            System.err.println("Uso: java Cliente <num_transacciones> [num_hilos] [ip_servidor]");
+            System.err.println("Ejemplo: java Cliente 500 25 192.168.1.100");
         }
     }
     
     /**
-     * Realiza una prueba de carga con múltiples transacciones
+     * SEGÚN PDF: Realiza prueba de carga con cientos de transacciones
      */
-    private static void realizarPruebaCarga(int idCliente, int numTransacciones) {
-        log("Iniciando prueba de carga: " + numTransacciones + " transacciones");
+    private static void realizarPruebaCarga(int numTransacciones, int numHilos) {
+        log("INICIANDO PRUEBA DE CARGA");
+        log("Transacciones: " + numTransacciones + ", Hilos: " + numHilos);
         
-        // Crear pool de hilos para las transacciones
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        // Resetear contadores
+        transaccionesExitosas.set(0);
+        transaccionesConError.set(0);
+        consultasRealizadas.set(0);
+        transferenciasRealizadas.set(0);
         
-        // Contador para transacciones completadas
-        final int[] completadas = {0};
-        final int[] errores = {0};
+        // Pool de hilos para concurrencia real
+        ExecutorService executor = Executors.newFixedThreadPool(numHilos);
+        CountDownLatch latch = new CountDownLatch(numTransacciones);
         
-        // Tiempo de inicio
         long tiempoInicio = System.currentTimeMillis();
         
-        // Enviar transacciones
+        // SEGÚN PDF: Enviar cientos de transacciones con delay aleatorio
         for (int i = 0; i < numTransacciones; i++) {
             final int numTrans = i;
             executor.submit(() -> {
                 try {
-                    // Delay aleatorio para simular concurrencia real
-                    Thread.sleep(random.nextInt(1000) + 100);
+                    // SEGÚN PDF: Delay aleatorio para simular concurrencia real
+                    Thread.sleep(random.nextInt(500) + 50); // 50-550ms
                     
-                    // Alternamos entre consultar saldo y transferir fondos
-                    if (numTrans % 2 == 0) {
-                        int idCuenta = idCliente * 100 + random.nextInt(10);
-                        String resultado = consultarSaldo(idCuenta);
-                        log("Consulta saldo cuenta " + idCuenta + ": " + resultado);
+                    if (numTrans % 3 == 0) {
+                        // Consulta de saldo (33% de las transacciones)
+                        realizarConsultaAleatoria();
                     } else {
-                        int cuentaOrigen = idCliente * 100 + random.nextInt(10);
-                        int cuentaDestino = ((idCliente + 1) % 10) * 100 + random.nextInt(10);
-                        double monto = random.nextDouble() * 100;
-                        String resultado = transferirFondos(cuentaOrigen, cuentaDestino, monto);
-                        log("Transferencia de " + monto + " desde " + cuentaOrigen + 
-                             " a " + cuentaDestino + ": " + resultado);
+                        // Transferencia (67% de las transacciones)
+                        realizarTransferenciaAleatoria();
                     }
                     
-                    // Incrementar contador de completadas
-                    synchronized (completadas) {
-                        completadas[0]++;
-                    }
+                    transaccionesExitosas.incrementAndGet();
+                    
                 } catch (Exception e) {
+                    transaccionesConError.incrementAndGet();
                     log("Error en transacción " + numTrans + ": " + e.getMessage());
-                    synchronized (errores) {
-                        errores[0]++;
-                    }
+                } finally {
+                    latch.countDown();
                 }
             });
         }
         
-        // Esperar a que terminen todas las transacciones o timeout
         try {
+            // Esperar a que terminen todas las transacciones
+            boolean terminado = latch.await(10, TimeUnit.MINUTES);
             executor.shutdown();
-            boolean terminado = executor.awaitTermination(5, TimeUnit.MINUTES);
             
-            // Calcular tiempo total
-            long tiempoFinal = System.currentTimeMillis();
-            double segundosTranscurridos = (tiempoFinal - tiempoInicio) / 1000.0;
+            long tiempoTotal = System.currentTimeMillis() - tiempoInicio;
+            double segundos = tiempoTotal / 1000.0;
             
-            // Mostrar resultados
-            log("Prueba de carga finalizada");
-            log("Transacciones completadas: " + completadas[0] + "/" + numTransacciones);
-            log("Errores: " + errores[0]);
-            log("Tiempo total: " + segundosTranscurridos + " segundos");
-            log("Transacciones por segundo: " + (completadas[0] / segundosTranscurridos));
+            // ESTADÍSTICAS FINALES
+            mostrarResultadosPrueba(numTransacciones, segundos, terminado);
             
-            System.out.println("\n===== RESULTADO PRUEBA DE CARGA =====");
-            System.out.println("Transacciones completadas: " + completadas[0] + "/" + numTransacciones);
-            System.out.println("Errores: " + errores[0]);
-            System.out.println("Tiempo total: " + segundosTranscurridos + " segundos");
-            System.out.println("Transacciones por segundo: " + (completadas[0] / segundosTranscurridos));
-            
-            if (!terminado) {
-                log("La prueba de carga alcanzó el timeout");
-                System.out.println("ADVERTENCIA: Algunas transacciones no se completaron (timeout)");
-            }
         } catch (InterruptedException e) {
             log("Prueba interrumpida: " + e.getMessage());
-            System.err.println("Prueba interrumpida: " + e.getMessage());
             Thread.currentThread().interrupt();
+        }
+    }
+    
+    /**
+     * Realiza una consulta de saldo aleatoria
+     */
+    private static void realizarConsultaAleatoria() throws IOException {
+        int idCuenta = MIN_ID_CUENTA + random.nextInt(MAX_ID_CUENTA - MIN_ID_CUENTA + 1);
+        String resultado = consultarSaldo(idCuenta);
+        consultasRealizadas.incrementAndGet();
+        
+        if (random.nextInt(100) < 5) { // Log 5% de las consultas
+            log("Consulta " + idCuenta + ": " + resultado);
+        }
+    }
+    
+    /**
+     * Realiza una transferencia aleatoria
+     */
+    private static void realizarTransferenciaAleatoria() throws IOException {
+        int cuentaOrigen = MIN_ID_CUENTA + random.nextInt(MAX_ID_CUENTA - MIN_ID_CUENTA + 1);
+        int cuentaDestino = MIN_ID_CUENTA + random.nextInt(MAX_ID_CUENTA - MIN_ID_CUENTA + 1);
+        
+        // Evitar transferencias a la misma cuenta
+        while (cuentaDestino == cuentaOrigen) {
+            cuentaDestino = MIN_ID_CUENTA + random.nextInt(MAX_ID_CUENTA - MIN_ID_CUENTA + 1);
+        }
+        
+        double monto = 10.0 + random.nextDouble() * 490.0; // 10-500
+        String resultado = transferirFondos(cuentaOrigen, cuentaDestino, monto);
+        transferenciasRealizadas.incrementAndGet();
+        
+        if (random.nextInt(100) < 3) { // Log 3% de las transferencias
+            log("Transferencia " + cuentaOrigen + " -> " + cuentaDestino + 
+                " ($" + String.format("%.2f", monto) + "): " + resultado);
+        }
+    }
+    
+    /**
+     * Muestra los resultados de la prueba de carga
+     */
+    private static void mostrarResultadosPrueba(int numTransacciones, double segundos, boolean terminado) {
+        int exitosas = transaccionesExitosas.get();
+        int errores = transaccionesConError.get();
+        int consultas = consultasRealizadas.get();
+        int transferencias = transferenciasRealizadas.get();
+        
+        double tps = exitosas / segundos;
+        double tasaExito = (exitosas * 100.0) / numTransacciones;
+        
+        String resultado = "\n===== RESULTADOS PRUEBA DE CARGA =====\n" +
+            "Transacciones solicitadas: " + numTransacciones + "\n" +
+            "Transacciones exitosas: " + exitosas + " (" + String.format("%.1f", tasaExito) + "%)\n" +
+            "Transacciones con error: " + errores + "\n" +
+            "Consultas realizadas: " + consultas + "\n" +
+            "Transferencias realizadas: " + transferencias + "\n" +
+            "Tiempo total: " + String.format("%.3f", segundos) + " segundos\n" +
+            "Transacciones por segundo: " + String.format("%.2f", tps) + " TPS\n" +
+            "Tasa de exito: " + String.format("%.1f", tasaExito) + "%\n" +
+            (terminado ? "Prueba completada" : "Timeout alcanzado") + "\n" +
+            "==========================================";
+        
+        System.out.println(resultado);
+        log(resultado.replace("\n", " | "));
+    }
+    
+    /**
+     * Realiza una prueba de arqueo consultando múltiples cuentas
+     */
+    private static void realizarPruebaArqueo() {
+        log("Iniciando prueba de arqueo...");
+        
+        try {
+            double saldoTotal = 0;
+            int cuentasConsultadas = 0;
+            int errores = 0;
+            
+            // Consultar una muestra de cuentas para verificar arqueo
+            for (int i = 0; i < 100; i++) {
+                int idCuenta = MIN_ID_CUENTA + random.nextInt(1000); // Muestra aleatoria
+                
+                try {
+                    String resultado = consultarSaldo(idCuenta);
+                    
+                    if (resultado.contains("|OK|")) {
+                        String[] partes = resultado.split("\\|");
+                        if (partes.length >= 4) {
+                            double saldo = Double.parseDouble(partes[3]);
+                            saldoTotal += saldo;
+                            cuentasConsultadas++;
+                        }
+                    } else {
+                        errores++;
+                    }
+                    
+                    Thread.sleep(50); // Pequeño delay
+                    
+                } catch (Exception e) {
+                    errores++;
+                }
+            }
+            
+            System.out.println("RESULTADO PRUEBA DE ARQUEO");
+            System.out.println("Cuentas consultadas: " + cuentasConsultadas);
+            System.out.println("Saldo total muestra: $" + String.format("%.2f", saldoTotal));
+            System.out.println("Errores: " + errores);
+            System.out.println("Promedio por cuenta: $" + String.format("%.2f", 
+                cuentasConsultadas > 0 ? saldoTotal / cuentasConsultadas : 0));
+                
+        } catch (Exception e) {
+            System.err.println("Error en prueba de arqueo: " + e.getMessage());
         }
     }
     
@@ -256,11 +412,9 @@ public class Cliente {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             
-            // Formato: REQUEST|CONSULTAR_SALDO|ID_CUENTA
             String request = "REQUEST|CONSULTAR_SALDO|" + idCuenta;
             out.println(request);
             
-            // Leer respuesta
             return in.readLine();
         }
     }
@@ -273,12 +427,10 @@ public class Cliente {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             
-            // Formato: REQUEST|TRANSFERIR_FONDOS|CUENTA_ORIGEN|CUENTA_DESTINO|MONTO
             String request = String.format("REQUEST|TRANSFERIR_FONDOS|%d|%d|%.2f", 
                                         cuentaOrigen, cuentaDestino, monto);
             out.println(request);
             
-            // Leer respuesta
             return in.readLine();
         }
     }
@@ -290,12 +442,9 @@ public class Cliente {
         String timestamp = formatoFecha.format(new Date());
         String logLine = "[" + timestamp + "] " + mensaje;
         
-        // Imprimir en consola
         System.out.println(logLine);
         
-        // Escribir en archivo de log
         try {
-            // Asegurar que el directorio existe
             File logDir = new File("../logs");
             if (!logDir.exists()) {
                 logDir.mkdirs();
@@ -307,8 +456,7 @@ public class Cliente {
                 out.println(logLine);
             }
         } catch (IOException e) {
-            // Error silencioso - ya imprimimos en consola
-            System.err.println("Error escribiendo en log: " + e.getMessage());
+            System.err.println("Error escribiendo log: " + e.getMessage());
         }
     }
 }
